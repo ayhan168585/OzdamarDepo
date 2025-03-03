@@ -1,0 +1,54 @@
+using FluentValidation;
+using GenericRepository;
+using Mapster;
+using MediatR;
+using OzdamarDepo.Domain.MediaItems;
+using TS.Result;
+
+namespace OzdamarDepo.Application.MediaItems
+{
+    public sealed record MediaItemCreateCommand(
+        string Title,
+        string ArtistOrDirector,
+        MediaType MediaType,
+        decimal Price,
+        DateOnly ReleaseDate,
+        MediaCondition MediaCondition,
+        bool? IsBoxSet,
+        int? DiscCount): IRequest<Result<string>>;
+
+    public sealed class MediaItemCreateCommandValidator : AbstractValidator<MediaItemCreateCommand>
+    {
+        public MediaItemCreateCommandValidator()
+        {
+            RuleFor(x => x.Title).NotEmpty().WithMessage("Başlık boş olamaz!");
+            RuleFor(x => x.ArtistOrDirector).MinimumLength(3).WithMessage("En az 3 karakter olmalıdır!");
+            RuleFor(x => x.Price).GreaterThan(0).WithMessage("Fiyat 0'dan büyük olmalıdır!");
+            RuleFor(x => x.MediaCondition.ConditionScore)
+                .InclusiveBetween(1, 10).WithMessage("Durum puanı 1-10 arası olmalıdır!");
+        }
+    }
+
+    internal sealed class MediaItemCreateCommandHandler(
+        IMediaItemRepository mediaItemRepository,
+        IUnitOfWork unitOfWork) : IRequestHandler<MediaItemCreateCommand, Result<string>>
+    {
+        public async Task<Result<string>> Handle(MediaItemCreateCommand request, CancellationToken cancellationToken)
+        {
+
+            MediaItem mediaItem=request.Adapt<MediaItem>();
+            await mediaItemRepository.AddAsync(mediaItem, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return Result<string>.Succeed("Medya öğesi başarıyla eklendi!");
+        }
+
+        private static string GetConditionDescription(int score) => score switch
+        {
+            >= 9 => "Mükemmel durumda",
+            >= 7 => "İyi durumda",
+            >= 5 => "Orta durumda",
+            _ => "Kötü durumda"
+        };
+    }
+} 

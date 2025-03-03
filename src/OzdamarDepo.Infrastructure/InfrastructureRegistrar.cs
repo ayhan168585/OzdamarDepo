@@ -1,0 +1,27 @@
+using GenericRepository;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using OzdamarDepo.Infrastructure.Context;
+using Scrutor;
+
+namespace OzdamarDepo.Infrastructure;
+
+ public static class InfrastructureRegistrar
+{
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddDbContext<ApplicationDbContext>(opt =>
+        {
+            string connectionString = configuration.GetConnectionString("SqlServer")!;
+            opt.UseSqlServer(connectionString);
+        });
+        services.AddScoped<IUnitOfWork>(srv => srv.GetRequiredService<ApplicationDbContext>());
+        services.Scan(opt => opt.FromAssemblies(typeof(InfrastructureRegistrar).Assembly)
+        .AddClasses(publicOnly: false)
+         .UsingRegistrationStrategy(RegistrationStrategy.Skip)
+        .AsImplementedInterfaces()
+        .WithScopedLifetime());
+        return services;
+    }
+}
