@@ -1,6 +1,8 @@
 using OzdamarDepo.Domain.Abstractions;
 using OzdamarDepo.Domain.MediaItems;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
+using OzdamarDepo.Domain.Users;
 
 namespace OzdamarDepo.Application.MediaItems;
 
@@ -17,31 +19,36 @@ public sealed class MediaItemGetAllQueryResponse : EntityDto
     public int ConditionScore { get; set; }
 }
 
-internal sealed class MediaItemGetAllQueryHandler(IMediaItemRepository mediaItemRepository)
-    : IRequestHandler<MediaItemGetAllQuery, IQueryable<MediaItemGetAllQueryResponse>>
+internal sealed class EmployeeGetAllQueryHandler(IMediaItemRepository mediaItemRepository, UserManager<AppUser> userManager) : IRequestHandler<MediaItemGetAllQuery, IQueryable<MediaItemGetAllQueryResponse>>
 {
-    public Task<IQueryable<MediaItemGetAllQueryResponse>> Handle(
-        MediaItemGetAllQuery request, 
-        CancellationToken cancellationToken)
+    public Task<IQueryable<MediaItemGetAllQueryResponse>> Handle(MediaItemGetAllQuery request, CancellationToken cancellationToken)
     {
-        var response = mediaItemRepository
-            .GetAll()
-            .Select(x => new MediaItemGetAllQueryResponse
-            {
-                Id = x.Id,
-                Title = x.Title,
-                ArtistOrDirector = x.ArtistOrDirector,
-                MediaFormat = x.MediaType.Format,
-                Category = x.MediaType.Category,
-                Price = x.Price,
-                ReleaseDate = x.ReleaseDate,
-                ConditionScore = x.MediaCondition.ConditionScore,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt,
-                IsDeleted = x.IsDeleted,
-                DeletedAt = x.DeletedAt
-            });
-            
+        var response = (from mediaItem in mediaItemRepository.GetAll()
+                        join create_user in userManager.Users.AsQueryable() on mediaItem.CreateUserId equals create_user.Id
+                        join update_user in userManager.Users.AsQueryable() on mediaItem.UpdateUserId equals update_user.Id into update_user
+                        from update_users in update_user.DefaultIfEmpty()
+                        select new MediaItemGetAllQueryResponse
+                        {
+                            ArtistOrDirector = mediaItem.ArtistOrDirector,
+                            Category=mediaItem.MediaType.Category,
+                            Price=mediaItem.Price,
+                            ConditionScore=mediaItem.MediaCondition.ConditionScore,
+                            ReleaseDate=mediaItem.ReleaseDate,
+                            CreatedAt=mediaItem.CreatedAt,
+                            UpdatedAt=mediaItem.UpdatedAt,
+                            DeletedAt=mediaItem.DeletedAt,
+                            Id=mediaItem.Id,
+                            IsDeleted=mediaItem.IsDeleted,
+                            MediaFormat = mediaItem.MediaType.Format,
+                            Title= mediaItem.Title,
+                            CreateUserId = mediaItem.CreateUserId,
+                            UpdateUserId = mediaItem.UpdateUserId,
+                            CreateUserName = create_user.FirstName + " " + create_user.LastName + "(" + create_user.Email + ")",
+                            UpdateUserName = mediaItem.UpdateUserId == null ? null : create_user.FirstName + " " + create_user.LastName + "(" + create_user.Email + ")"
+
+
+
+                        }).AsQueryable();
         return Task.FromResult(response);
     }
-} 
+}

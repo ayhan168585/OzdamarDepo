@@ -1,7 +1,7 @@
+using OzdamarDepo.Infrastructure;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.RateLimiting;
 using OzdamarDepo.Application;
-using OzdamarDepo.Infrastructure;
 using OzdamarDepo.WebAPI;
 using OzdamarDepo.WebAPI.Controllers;
 using OzdamarDepo.WebAPI.Modules;
@@ -14,6 +14,10 @@ builder.Services.AddApplication();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddCors();
+
+builder.Services.AddAuthentication().AddJwtBearer();
+builder.Services.AddAuthorization();
+
 
 builder.Services.AddControllers().AddOData(opt =>
         opt
@@ -41,18 +45,18 @@ x.AddFixedWindowLimiter("fixed", cfg =>
 
 builder.Services.AddExceptionHandler<ExceptionHandler>().AddProblemDetails();
 
-
 builder.AddServiceDefaults();
 var app = builder.Build();
 app.MapOpenApi();
 app.MapScalarApiReference();
 
 app.MapDefaultEndpoints();
-app.MapControllers().RequireRateLimiting("fixed");
+app.MapControllers().RequireRateLimiting("fixed").RequireAuthorization();
 app.RegisterRoutes();
-
 app.UseExceptionHandler();
 
-
 app.UseCors(x => x.AllowAnyHeader().AllowCredentials().AllowAnyMethod().SetIsOriginAllowed(t => true));
+ExtensionsMiddleware.CreateFirstUser(app);
+app.UseAuthentication();
+app.UseAuthorization();
 app.Run();

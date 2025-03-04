@@ -12,7 +12,7 @@ using OzdamarDepo.Infrastructure.Context;
 namespace OzdamarDepo.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250302122600_mig_1")]
+    [Migration("20250304154903_mig_1")]
     partial class mig_1
     {
         /// <inheritdoc />
@@ -25,41 +25,24 @@ namespace OzdamarDepo.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("OzdamarDepo.Domain.Employees.Employee", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateOnly>("BirthOfDate")
-                        .HasColumnType("date");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
+                    b.Property<string>("ConcurrencyStamp")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
+                    b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Salary")
-                        .HasColumnType("money");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("NormalizedName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Employees");
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("OzdamarDepo.Domain.MediaItems.MediaItem", b =>
@@ -72,11 +55,17 @@ namespace OzdamarDepo.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<Guid>("CreateUserId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeleteUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int?>("DiscCount")
                         .HasColumnType("int");
@@ -97,79 +86,101 @@ namespace OzdamarDepo.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<Guid?>("UpdateUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
                     b.ToTable("MediaItems");
                 });
 
-            modelBuilder.Entity("OzdamarDepo.Domain.Employees.Employee", b =>
+            modelBuilder.Entity("OzdamarDepo.Domain.Users.AppUser", b =>
                 {
-                    b.OwnsOne("OzdamarDepo.Domain.Employees.Address", "Address", b1 =>
-                        {
-                            b1.Property<Guid>("EmployeeId")
-                                .HasColumnType("uniqueidentifier");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
-                            b1.Property<string>("City")
-                                .HasColumnType("nvarchar(max)")
-                                .HasColumnName("City");
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
 
-                            b1.Property<string>("Country")
-                                .HasColumnType("nvarchar(max)")
-                                .HasColumnName("Country");
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("nvarchar(max)");
 
-                            b1.Property<string>("FullAdress")
-                                .HasColumnType("nvarchar(max)")
-                                .HasColumnName("FullAdress");
+                    b.Property<Guid>("CreateUserId")
+                        .HasColumnType("uniqueidentifier");
 
-                            b1.Property<string>("Town")
-                                .HasColumnType("nvarchar(max)")
-                                .HasColumnName("Town");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
 
-                            b1.HasKey("EmployeeId");
+                    b.Property<Guid?>("DeleteUserId")
+                        .HasColumnType("uniqueidentifier");
 
-                            b1.ToTable("Employees");
+                    b.Property<DateTimeOffset>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
 
-                            b1.WithOwner()
-                                .HasForeignKey("EmployeeId");
-                        });
+                    b.Property<string>("Email")
+                        .HasColumnType("varchar(MAX)");
 
-                    b.OwnsOne("OzdamarDepo.Domain.Employees.PersonelInformation", "PersonelInformation", b1 =>
-                        {
-                            b1.Property<Guid>("EmployeeId")
-                                .HasColumnType("uniqueidentifier");
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
 
-                            b1.Property<string>("Email")
-                                .HasColumnType("nvarchar(max)")
-                                .HasColumnName("Email");
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
 
-                            b1.Property<string>("Phone1")
-                                .HasColumnType("nvarchar(max)")
-                                .HasColumnName("Phone1");
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
-                            b1.Property<string>("Phone2")
-                                .HasColumnType("nvarchar(max)")
-                                .HasColumnName("Phone2");
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
 
-                            b1.Property<string>("TCNo")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)")
-                                .HasColumnName("TCNO");
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
 
-                            b1.HasKey("EmployeeId");
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
 
-                            b1.ToTable("Employees");
+                    b.Property<string>("NormalizedEmail")
+                        .HasColumnType("nvarchar(max)");
 
-                            b1.WithOwner()
-                                .HasForeignKey("EmployeeId");
-                        });
+                    b.Property<string>("NormalizedUserName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Navigation("Address");
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Navigation("PersonelInformation")
-                        .IsRequired();
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("UpdateUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("varchar(15)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserName")
+                        .IsUnique()
+                        .HasFilter("[UserName] IS NOT NULL");
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("OzdamarDepo.Domain.MediaItems.MediaItem", b =>

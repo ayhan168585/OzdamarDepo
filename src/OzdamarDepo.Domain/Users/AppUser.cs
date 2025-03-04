@@ -1,18 +1,17 @@
-using System;
+﻿using Microsoft.AspNetCore.Identity;
 
-namespace OzdamarDepo.Domain.Abstractions
+namespace OzdamarDepo.Domain.Users
 {
-    public abstract class Entity
+    public sealed class AppUser : IdentityUser<Guid>
     {
-        public Entity()
+        public AppUser()
         {
             Id = Guid.CreateVersion7();
-           
         }
+        public string FirstName { get; set; } = default!;
+        public string LastName { get; set; } = default!;
+        public string FullName => $"{FirstName} {LastName}";
 
-        public Guid Id { get; set; }
-
-        #region Audit Log
         public DateTimeOffset CreatedAt { get; set; }
         public Guid CreateUserId { get; set; } = default!;
         public DateTimeOffset? UpdatedAt { get; set; }
@@ -20,8 +19,5 @@ namespace OzdamarDepo.Domain.Abstractions
         public bool IsDeleted { get; set; }
         public Guid? DeleteUserId { get; set; }
         public DateTimeOffset DeletedAt { get; set; }
-
-        #endregion
     }
 }
- 

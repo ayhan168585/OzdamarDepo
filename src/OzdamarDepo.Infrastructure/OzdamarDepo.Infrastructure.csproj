@@ -13,13 +13,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.2" />
     <PackageReference Include="Scrutor" Version="6.0.1" />
     <PackageReference Include="TS.EntityFrameworkCore.GenericRepository" Version="9.0.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\OzdamarDepo.Domain\OzdamarDepo.Domain.csproj" />
-  </ItemGroup>
 
 </Project>

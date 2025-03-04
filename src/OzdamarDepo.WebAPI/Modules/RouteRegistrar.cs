@@ -5,6 +5,8 @@
         public static void RegisterRoutes(this IEndpointRouteBuilder app)
         {
             app.RegisterMediaItemRoutes();
+            app.RegisterAuthRoutes();
+
         }
     }
 }
