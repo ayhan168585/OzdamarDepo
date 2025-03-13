@@ -1,7 +1,8 @@
-using OzdamarDepo.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.RateLimiting;
 using OzdamarDepo.Application;
+using OzdamarDepo.Infrastructure;
 using OzdamarDepo.WebAPI;
 using OzdamarDepo.WebAPI.Controllers;
 using OzdamarDepo.WebAPI.Modules;
@@ -10,16 +11,19 @@ using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddApplication();
+builder.Services.AddResponseCompression(opt =>
+{
+    opt.EnableForHttps = true;
+});
 
+builder.AddServiceDefaults();
+builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddCors();
-
-builder.Services.AddAuthentication().AddJwtBearer();
-builder.Services.AddAuthorization();
-
-
-builder.Services.AddControllers().AddOData(opt =>
+builder.Services.AddOpenApi();
+builder.Services
+    .AddControllers()
+    .AddOData(opt =>
         opt
         .Select()
         .Filter()
@@ -27,13 +31,9 @@ builder.Services.AddControllers().AddOData(opt =>
         .Expand()
         .OrderBy()
         .SetMaxTop(null)
-        //.EnableQueryFeatures()
         .AddRouteComponents("odata", AppODataController.GetEdmModel())
-//
-);
-
-
-builder.Services.AddOpenApi();
+    )
+    ;
 builder.Services.AddRateLimiter(x =>
 x.AddFixedWindowLimiter("fixed", cfg =>
 {
@@ -42,21 +42,45 @@ x.AddFixedWindowLimiter("fixed", cfg =>
     cfg.PermitLimit = 100;
     cfg.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
 }));
-
 builder.Services.AddExceptionHandler<ExceptionHandler>().AddProblemDetails();
 
-builder.AddServiceDefaults();
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer();
+builder.Services.AddAuthorization();
+
+//builder.Services.AddKeycloakWebApiAuthentication(builder.Configuration);
+//builder.Services.AddAuthorization().AddKeycloakAuthorization(builder.Configuration);
+
 var app = builder.Build();
+
 app.MapOpenApi();
 app.MapScalarApiReference();
 
 app.MapDefaultEndpoints();
-app.MapControllers().RequireRateLimiting("fixed").RequireAuthorization();
-app.RegisterRoutes();
-app.UseExceptionHandler();
 
-app.UseCors(x => x.AllowAnyHeader().AllowCredentials().AllowAnyMethod().SetIsOriginAllowed(t => true));
-ExtensionsMiddleware.CreateFirstUser(app);
+app.UseHttpsRedirection();
+
+app.UseCors(x => x
+.AllowAnyHeader()
+.AllowCredentials()
+.AllowAnyMethod()
+.SetIsOriginAllowed(t => true)
+.SetPreflightMaxAge(TimeSpan.FromMinutes(10)));
+
+app.RegisterRoutes();
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseResponseCompression();
+
+app.UseExceptionHandler();
+
+app.MapControllers().RequireRateLimiting("fixed").RequireAuthorization();
+
+ExtensionsMiddleware.CreateFirstUser(app);
+
 app.Run();

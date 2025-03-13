@@ -3,6 +3,8 @@ namespace OzdamarDepo.Domain.Abstractions;
 public abstract class EntityDto
 {
     public Guid Id { get; set; }
+
+    public bool IsActive { get; set; } = true;
     public Guid CreateUserId { get; set; }
     public string CreateUserName { get; set; } = default!;
     public Guid? UpdateUserId { get; set; }

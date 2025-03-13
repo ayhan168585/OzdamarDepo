@@ -11,12 +11,18 @@ public sealed record MediaItemGetAllQuery() : IRequest<IQueryable<MediaItemGetAl
 public sealed class MediaItemGetAllQueryResponse : EntityDto
 {
     public string Title { get; set; } = default!;
-    public string ArtistOrDirector { get; set; } = default!;
+    public string ArtistOrActor { get; set; } = default!;
     public string MediaFormat { get; set; } = default!;
     public string Category { get; set; } = default!;
     public decimal Price { get; set; }
     public DateOnly ReleaseDate { get; set; }
     public int ConditionScore { get; set; }
+    public string Description { get; set; }=default!;
+
+    public int MediaDurumValue { get; set; }
+    public string MediaDurumName { get; set; } = default!;
+    public bool IsBoxSet { get; set; }
+    public int DiscCount { get; set; }
 }
 
 internal sealed class EmployeeGetAllQueryHandler(IMediaItemRepository mediaItemRepository, UserManager<AppUser> userManager) : IRequestHandler<MediaItemGetAllQuery, IQueryable<MediaItemGetAllQueryResponse>>
@@ -29,18 +35,23 @@ internal sealed class EmployeeGetAllQueryHandler(IMediaItemRepository mediaItemR
                         from update_users in update_user.DefaultIfEmpty()
                         select new MediaItemGetAllQueryResponse
                         {
-                            ArtistOrDirector = mediaItem.ArtistOrDirector,
-                            Category=mediaItem.MediaType.Category,
-                            Price=mediaItem.Price,
-                            ConditionScore=mediaItem.MediaCondition.ConditionScore,
-                            ReleaseDate=mediaItem.ReleaseDate,
-                            CreatedAt=mediaItem.CreatedAt,
-                            UpdatedAt=mediaItem.UpdatedAt,
-                            DeletedAt=mediaItem.DeletedAt,
-                            Id=mediaItem.Id,
-                            IsDeleted=mediaItem.IsDeleted,
+                            ArtistOrActor = mediaItem.ArtistOrActor,
+                            Category = mediaItem.MediaType.Category,
+                            Price = mediaItem.Price,
+                            ConditionScore = mediaItem.MediaCondition.ConditionScore,
+                            Description=mediaItem.MediaCondition.Description,
+                            ReleaseDate = mediaItem.ReleaseDate,
+                            IsBoxSet=mediaItem.IsBoxSet,
+                            DiscCount=mediaItem.DiscCount,
+                            MediaDurumValue=(int)mediaItem.MediaDurum,
+                            MediaDurumName=mediaItem.MediaDurum.GetDisplayName(),
+                            CreatedAt = mediaItem.CreatedAt,
+                            UpdatedAt = mediaItem.UpdatedAt,
+                            DeletedAt = mediaItem.DeletedAt,
+                            Id = mediaItem.Id,
+                            IsDeleted = mediaItem.IsDeleted,
                             MediaFormat = mediaItem.MediaType.Format,
-                            Title= mediaItem.Title,
+                            Title = mediaItem.Title,
                             CreateUserId = mediaItem.CreateUserId,
                             UpdateUserId = mediaItem.UpdateUserId,
                             CreateUserName = create_user.FirstName + " " + create_user.LastName + "(" + create_user.Email + ")",

@@ -12,8 +12,8 @@ using OzdamarDepo.Infrastructure.Context;
 namespace OzdamarDepo.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250304154903_mig_1")]
-    partial class mig_1
+    [Migration("20250311114155_mig_3")]
+    partial class mig_3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,7 +51,7 @@ namespace OzdamarDepo.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ArtistOrDirector")
+                    b.Property<string>("ArtistOrActor")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -70,11 +70,17 @@ namespace OzdamarDepo.Infrastructure.Migrations
                     b.Property<int?>("DiscCount")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<bool?>("IsBoxSet")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<int>("MediaDurum")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("money");

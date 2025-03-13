@@ -1,3 +1,5 @@
+using Ardalis.SmartEnum;
+
 namespace OzdamarDepo.Domain.MediaItems
 {
     public sealed record MediaType

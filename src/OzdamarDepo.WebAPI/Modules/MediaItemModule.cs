@@ -12,7 +12,7 @@ public static class MediaItemModule
 {
     public static void RegisterMediaItemRoutes(this IEndpointRouteBuilder app)
     {
-        RouteGroupBuilder group = app.MapGroup("/mediaitems").WithTags("MediaItems");
+        RouteGroupBuilder group = app.MapGroup("/mediaitems").WithTags("mediaItems");
 
         group.MapPost("",
             async (ISender sender, MediaItemCreateCommand request, CancellationToken cancellationToken) =>
@@ -22,7 +22,8 @@ public static class MediaItemModule
                     ? Results.Ok(response)
                     : Results.InternalServerError(response);
             })
-            .Produces<Result<string>>();
+            .Produces<Result<string>>().
+            WithName("MediaItemCreate");
 
         group.MapGet(string.Empty,
              async (ISender sender, Guid id, CancellationToken cancellationToken) =>
@@ -30,6 +31,17 @@ public static class MediaItemModule
                  var response = await sender.Send(new MediaItemGetQuery(id), cancellationToken);
                  return response.IsSuccessful ? Results.Ok(response) : Results.InternalServerError(response);
              })
-             .Produces<Result<MediaItem>>();
+             .Produces<Result<MediaItem>>().
+             WithName("MediaItemDetail");
+
+        group.MapDelete("{id}",
+           async (Guid Id, ISender sender, CancellationToken cancellationToken) =>
+           {
+               var response = await sender.Send(new KargoDeleteCommand(Id), cancellationToken);
+               return response.IsSuccessful ? Results.Ok(response) : Results.InternalServerError(response);
+           })
+
+       .Produces<Result<string>>().
+           WithName("MediaItemDelete");
     }
 }

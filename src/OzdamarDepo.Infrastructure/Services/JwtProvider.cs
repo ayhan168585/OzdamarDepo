@@ -19,7 +19,7 @@ namespace OzdamarDepo.Infrastructure.Services
             {
                 new Claim("user-id",user.Id.ToString())
             };
-            var expires = DateTime.UtcNow.AddDays(1);
+            var expires = DateTime.UtcNow.AddMonths(1);
 
             SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(options.Value.SecretKey));
 

@@ -1,3 +1,5 @@
+﻿using Ardalis.SmartEnum;
+
 namespace OzdamarDepo.Domain.MediaItems
 {
     public sealed record MediaCondition
@@ -5,4 +7,5 @@ namespace OzdamarDepo.Domain.MediaItems
         public int ConditionScore { get; set; } = 5; // 1-10 arası
         public string Description { get; set; } = "İyi durumda";
     }
-} 
+
+}

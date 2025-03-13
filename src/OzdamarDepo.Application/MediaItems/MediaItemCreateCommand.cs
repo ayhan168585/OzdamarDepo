@@ -9,20 +9,20 @@ namespace OzdamarDepo.Application.MediaItems
 {
     public sealed record MediaItemCreateCommand(
         string Title,
-        string ArtistOrDirector,
+        string ArtistOrActor,
         MediaType MediaType,
         decimal Price,
         DateOnly ReleaseDate,
         MediaCondition MediaCondition,
-        bool? IsBoxSet,
-        int? DiscCount): IRequest<Result<string>>;
+        bool IsBoxSet,
+        int DiscCount) : IRequest<Result<string>>;
 
     public sealed class MediaItemCreateCommandValidator : AbstractValidator<MediaItemCreateCommand>
     {
         public MediaItemCreateCommandValidator()
         {
             RuleFor(x => x.Title).NotEmpty().WithMessage("Başlık boş olamaz!");
-            RuleFor(x => x.ArtistOrDirector).MinimumLength(3).WithMessage("En az 3 karakter olmalıdır!");
+            RuleFor(x => x.ArtistOrActor).MinimumLength(2).WithMessage("En az 2 karakter olmalıdır!");
             RuleFor(x => x.Price).GreaterThan(0).WithMessage("Fiyat 0'dan büyük olmalıdır!");
             RuleFor(x => x.MediaCondition.ConditionScore)
                 .InclusiveBetween(1, 10).WithMessage("Durum puanı 1-10 arası olmalıdır!");
@@ -36,8 +36,18 @@ namespace OzdamarDepo.Application.MediaItems
         public async Task<Result<string>> Handle(MediaItemCreateCommand request, CancellationToken cancellationToken)
         {
 
-            MediaItem mediaItem=request.Adapt<MediaItem>();
-            await mediaItemRepository.AddAsync(mediaItem, cancellationToken);
+            MediaItem mediaItem = request.Adapt<MediaItem>();
+
+            mediaItem.Title = request.Title;
+            mediaItem.ArtistOrActor = request.ArtistOrActor;
+            mediaItem.Price = request.Price;
+            mediaItem.MediaType= request.MediaType;
+            mediaItem.ReleaseDate = request.ReleaseDate;
+            mediaItem.MediaCondition = request.MediaCondition;
+            mediaItem.MediaDurum=MediaDurumEnum.Bekliyor;
+            mediaItem.IsBoxSet=request.IsBoxSet;
+            mediaItem.DiscCount = request.DiscCount;
+            await mediaItemRepository.AddAsync(mediaItem);
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<string>.Succeed("Medya öğesi başarıyla eklendi!");

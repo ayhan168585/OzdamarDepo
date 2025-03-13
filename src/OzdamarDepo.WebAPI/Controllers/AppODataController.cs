@@ -19,7 +19,7 @@ public class AppODataController(ISender sender) : ODataController
     {
         var builder = new ODataConventionModelBuilder();
         builder.EnableLowerCamelCase();
-        builder.EntitySet<MediaItemGetAllQueryResponse>("MediaItems");
+        builder.EntitySet<MediaItemGetAllQueryResponse>("mediaItems");
         return builder.GetEdmModel();
     }
 
