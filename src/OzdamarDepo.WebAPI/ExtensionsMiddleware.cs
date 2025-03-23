@@ -15,6 +15,7 @@ namespace OzdamarDepo.WebAPI
                 {
                     AppUser user = new()
                     {
+                        Id = Guid.Parse("019582c7-2237-787e-b808-908e68e1cc1a"),
                         UserName = "admin",
                         Email = "admin@admin.com",
                         FirstName = "Ayhan",
