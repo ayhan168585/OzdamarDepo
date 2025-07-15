@@ -1,35 +1,27 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using OzdamarDepo.Domain.Users;
 
-namespace OzdamarDepo.WebAPI
+namespace OzdamarDepo.Infrastructure;
+public static class ExtensionsMiddleware
 {
-    public static class ExtensionsMiddleware
+    public static void CreateFirstUser(WebApplication app)
     {
-        public static void CreateFirstUser(WebApplication app)
+        using (var scoped = app.Services.CreateScope())
         {
-            using (var scoped = app.Services.CreateScope())
+            var userManager = scoped.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+
+            if (!userManager.Users.Any(p => p.UserName == "admin"))
             {
-                var userManager = scoped.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
-
-                if (!userManager.Users.Any(p => p.UserName == "admin"))
+                AppUser user = new()
                 {
-                    AppUser user = new()
-                    {
-                        Id = Guid.Parse("019582c7-2237-787e-b808-908e68e1cc1a"),
-                        UserName = "admin",
-                        Email = "admin@admin.com",
-                        FirstName = "Ayhan",
-                        LastName = "Özer",
-                        EmailConfirmed = true,
-                        CreatedAt = DateTimeOffset.Now,
-                    };
+                    UserName = "admin",
+                    Email = "admin@admin.com",
+                    FirstName = "Ayhan",
+                    LastName = "Özer",
+                    EmailConfirmed = true
+                };
 
-                    user.CreateUserId = user.Id;
-
-                    userManager.CreateAsync(user, "1").Wait();
-
-
-                }
+                userManager.CreateAsync(user, "1").Wait();
             }
         }
     }

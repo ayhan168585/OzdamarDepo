@@ -17,7 +17,7 @@ namespace OzdamarDepo.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.2")
+                .HasAnnotation("ProductVersion", "9.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -49,7 +49,6 @@ namespace OzdamarDepo.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ArtistOrActor")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("CreateUserId")
@@ -66,6 +65,9 @@ namespace OzdamarDepo.Infrastructure.Migrations
 
                     b.Property<int>("DiscCount")
                         .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -86,7 +88,6 @@ namespace OzdamarDepo.Infrastructure.Migrations
                         .HasColumnType("date");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("UpdateUserId")
@@ -131,14 +132,12 @@ namespace OzdamarDepo.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("varchar(50)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("varchar(50)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -198,7 +197,6 @@ namespace OzdamarDepo.Infrastructure.Migrations
                                 .HasColumnName("ConditionScore");
 
                             b1.Property<string>("Description")
-                                .IsRequired()
                                 .HasColumnType("nvarchar(max)")
                                 .HasColumnName("Description");
 
@@ -216,12 +214,10 @@ namespace OzdamarDepo.Infrastructure.Migrations
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Category")
-                                .IsRequired()
                                 .HasColumnType("nvarchar(max)")
                                 .HasColumnName("Category");
 
                             b1.Property<string>("Format")
-                                .IsRequired()
                                 .HasColumnType("nvarchar(max)")
                                 .HasColumnName("Format");
 
@@ -233,11 +229,9 @@ namespace OzdamarDepo.Infrastructure.Migrations
                                 .HasForeignKey("MediaItemId");
                         });
 
-                    b.Navigation("MediaCondition")
-                        .IsRequired();
+                    b.Navigation("MediaCondition");
 
-                    b.Navigation("MediaType")
-                        .IsRequired();
+                    b.Navigation("MediaType");
                 });
 #pragma warning restore 612, 618
         }

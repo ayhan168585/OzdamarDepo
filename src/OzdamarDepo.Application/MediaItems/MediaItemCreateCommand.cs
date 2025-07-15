@@ -9,6 +9,7 @@ namespace OzdamarDepo.Application.MediaItems
 {
     public sealed record MediaItemCreateCommand(
         string Title,
+        string imageUrl,
         string ArtistOrActor,
         MediaType MediaType,
         decimal Price,
@@ -39,6 +40,7 @@ namespace OzdamarDepo.Application.MediaItems
             MediaItem mediaItem = request.Adapt<MediaItem>();
 
             mediaItem.Title = request.Title;
+            mediaItem.ImageUrl = request.imageUrl;
             mediaItem.ArtistOrActor = request.ArtistOrActor;
             mediaItem.Price = request.Price;
             mediaItem.MediaType= request.MediaType;

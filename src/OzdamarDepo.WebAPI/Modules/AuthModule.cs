@@ -16,6 +16,15 @@ namespace OzdamarDepo.WebAPI.Modules
                     return response.IsSuccessful ? Results.Ok(response) : Results.InternalServerError(response);
                 })
                 .Produces<Result<LoginCommandResponse>>();
+
+            group.MapPost("register",
+               async (ISender sender, UserCreateCommand request, CancellationToken cancellationToken) =>
+               {
+                   var response = await sender.Send(request);
+                   return response.IsSuccessful ? Results.Ok(response) : Results.InternalServerError(response);
+               })
+               .Produces<Result<string>>().AllowAnonymous();
+               
         }
     }
 }

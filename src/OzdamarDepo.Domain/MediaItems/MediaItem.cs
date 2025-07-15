@@ -5,6 +5,7 @@ namespace OzdamarDepo.Domain.MediaItems
     public class MediaItem : Entity
     {
         public string Title { get; set; } = default!;
+        public string ImageUrl { get; set; }= default!;
         public string ArtistOrActor { get; set; } = default!;
         public MediaType MediaType { get; set; } = default!;
         public decimal Price { get; set; }

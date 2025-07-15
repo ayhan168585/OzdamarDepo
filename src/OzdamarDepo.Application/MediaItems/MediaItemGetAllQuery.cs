@@ -11,6 +11,7 @@ public sealed record MediaItemGetAllQuery() : IRequest<IQueryable<MediaItemGetAl
 public sealed class MediaItemGetAllQueryResponse : EntityDto
 {
     public string Title { get; set; } = default!;
+    public string ImageUrl { get; set; }= default!;
     public string ArtistOrActor { get; set; } = default!;
     public string MediaFormat { get; set; } = default!;
     public string Category { get; set; } = default!;
@@ -25,7 +26,7 @@ public sealed class MediaItemGetAllQueryResponse : EntityDto
     public int DiscCount { get; set; }
 }
 
-internal sealed class EmployeeGetAllQueryHandler(IMediaItemRepository mediaItemRepository, UserManager<AppUser> userManager) : IRequestHandler<MediaItemGetAllQuery, IQueryable<MediaItemGetAllQueryResponse>>
+internal sealed class MediaItemsGetAllQueryHandler(IMediaItemRepository mediaItemRepository, UserManager<AppUser> userManager) : IRequestHandler<MediaItemGetAllQuery, IQueryable<MediaItemGetAllQueryResponse>>
 {
     public Task<IQueryable<MediaItemGetAllQueryResponse>> Handle(MediaItemGetAllQuery request, CancellationToken cancellationToken)
     {
@@ -52,6 +53,7 @@ internal sealed class EmployeeGetAllQueryHandler(IMediaItemRepository mediaItemR
                             IsDeleted = mediaItem.IsDeleted,
                             MediaFormat = mediaItem.MediaType.Format,
                             Title = mediaItem.Title,
+                            ImageUrl = mediaItem.ImageUrl,
                             CreateUserId = mediaItem.CreateUserId,
                             UpdateUserId = mediaItem.UpdateUserId,
                             CreateUserName = create_user.FirstName + " " + create_user.LastName + "(" + create_user.Email + ")",

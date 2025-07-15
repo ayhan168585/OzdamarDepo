@@ -1,4 +1,4 @@
-using GenericRepository;
+ï»¿using GenericRepository;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,8 +11,11 @@ namespace OzdamarDepo.Infrastructure.Context;
 
 internal sealed class ApplicationDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>, IUnitOfWork
 {
-    public ApplicationDbContext(DbContextOptions options) : base(options)
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public ApplicationDbContext(DbContextOptions options, IHttpContextAccessor httpContextAccessor) : base(options)
     {
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public DbSet<MediaItem> MediaItems { get; set; }
@@ -22,52 +25,55 @@ internal sealed class ApplicationDbContext : IdentityDbContext<AppUser, Identity
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
         modelBuilder.Ignore<IdentityUserLogin<Guid>>();
+        modelBuilder.Ignore<IdentityRoleClaim<Guid>>();
+        modelBuilder.Ignore<IdentityUserToken<Guid>>();
         modelBuilder.Ignore<IdentityUserRole<Guid>>();
         modelBuilder.Ignore<IdentityUserClaim<Guid>>();
-        modelBuilder.Ignore<IdentityUserToken<Guid>>();
-        modelBuilder.Ignore<IdentityRoleClaim<Guid>>();
 
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var entries = ChangeTracker.Entries<OzdamarDepo.Domain.Abstractions.Entity>();
-        HttpContextAccessor httpContextAccessor = new();
-        string userIdString = httpContextAccessor.HttpContext!.User.Claims.First(p => p.Type == "user-id").Value;
-        Guid userId = Guid.Parse(userIdString);
+
+        Guid? userId = null;
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext != null && httpContext.User.Identity is { IsAuthenticated: true })
+        {
+            var userIdClaim = httpContext.User.Claims.FirstOrDefault(c => c.Type == "user-id");
+            if (userIdClaim != null)
+            {
+                userId = Guid.Parse(userIdClaim.Value);
+            }
+        }
+
         foreach (var entry in entries)
         {
             if (entry.State == EntityState.Added)
             {
-                entry.Property(p => p.CreatedAt)
-                    .CurrentValue = DateTimeOffset.Now;
-                entry.Property(p => p.CreateUserId)
-                    .CurrentValue = userId;
+                entry.Property(p => p.CreatedAt).CurrentValue = DateTimeOffset.Now;
+                entry.Property(p => p.CreateUserId).CurrentValue = userId ?? Guid.Empty;
             }
-            if (entry.State == EntityState.Modified)
+            else if (entry.State == EntityState.Modified)
             {
-                if (entry.Property(p => p.IsDeleted).CurrentValue == true)
+                if ((bool)entry.Property(p => p.IsDeleted).CurrentValue!)
                 {
-                    entry.Property(p => p.DeletedAt)
-                   .CurrentValue = DateTimeOffset.Now;
-                    entry.Property(p => p.DeleteUserId)
-                        .CurrentValue = userId;
+                    entry.Property(p => p.DeletedAt).CurrentValue = DateTimeOffset.Now;
+                    entry.Property(p => p.DeleteUserId).CurrentValue = userId ?? Guid.Empty;
                 }
                 else
                 {
-                    entry.Property(p => p.UpdatedAt)
-                   .CurrentValue = DateTimeOffset.Now;
-                    entry.Property(p => p.UpdateUserId)
-                        .CurrentValue = userId;
+                    entry.Property(p => p.UpdatedAt).CurrentValue = DateTimeOffset.Now;
+                    entry.Property(p => p.UpdateUserId).CurrentValue = userId ?? Guid.Empty;
                 }
-
             }
 
             if (entry.State == EntityState.Deleted)
             {
-                throw new ArgumentException("Db'den direkt silme iþlemi yapamazsýnýz!");
+                throw new ArgumentException("Db'den direkt silme iÅŸlemi yapamazsÄ±nÄ±z!");
             }
         }
+
         return base.SaveChangesAsync(cancellationToken);
     }
 

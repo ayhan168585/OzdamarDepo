@@ -9,6 +9,7 @@ namespace OzdamarDepo.Application.MediaItems;
 public sealed record MediaItemUpdateCommand(
        Guid Id,
        string Title,
+       string ImageUrl,
        string ArtistOrActor,
        MediaType MediaType,
        decimal Price,
@@ -51,6 +52,7 @@ internal sealed class MediaItemUpdateCommandHandler(
         request.Adapt(mediaitem);
 
         mediaitem.Title = request.Title;
+        mediaitem.ImageUrl = request.ImageUrl;
         mediaitem.ArtistOrActor = request.ArtistOrActor;
         mediaitem.Price = request.Price;
         mediaitem.MediaType = request.MediaType;

@@ -12,15 +12,15 @@ using OzdamarDepo.Infrastructure.Context;
 namespace OzdamarDepo.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250311114155_mig_3")]
-    partial class mig_3
+    [Migration("20250715182035_mig_1")]
+    partial class mig_1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.2")
+                .HasAnnotation("ProductVersion", "9.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -52,7 +52,6 @@ namespace OzdamarDepo.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ArtistOrActor")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("CreateUserId")
@@ -67,13 +66,16 @@ namespace OzdamarDepo.Infrastructure.Migrations
                     b.Property<DateTimeOffset>("DeletedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int?>("DiscCount")
+                    b.Property<int>("DiscCount")
                         .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<bool?>("IsBoxSet")
+                    b.Property<bool>("IsBoxSet")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
@@ -89,7 +91,6 @@ namespace OzdamarDepo.Infrastructure.Migrations
                         .HasColumnType("date");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("UpdateUserId")
@@ -134,14 +135,12 @@ namespace OzdamarDepo.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("varchar(50)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("varchar(50)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -201,7 +200,6 @@ namespace OzdamarDepo.Infrastructure.Migrations
                                 .HasColumnName("ConditionScore");
 
                             b1.Property<string>("Description")
-                                .IsRequired()
                                 .HasColumnType("nvarchar(max)")
                                 .HasColumnName("Description");
 
@@ -219,12 +217,10 @@ namespace OzdamarDepo.Infrastructure.Migrations
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Category")
-                                .IsRequired()
                                 .HasColumnType("nvarchar(max)")
                                 .HasColumnName("Category");
 
                             b1.Property<string>("Format")
-                                .IsRequired()
                                 .HasColumnType("nvarchar(max)")
                                 .HasColumnName("Format");
 
@@ -236,11 +232,9 @@ namespace OzdamarDepo.Infrastructure.Migrations
                                 .HasForeignKey("MediaItemId");
                         });
 
-                    b.Navigation("MediaCondition")
-                        .IsRequired();
+                    b.Navigation("MediaCondition");
 
-                    b.Navigation("MediaType")
-                        .IsRequired();
+                    b.Navigation("MediaType");
                 });
 #pragma warning restore 612, 618
         }
