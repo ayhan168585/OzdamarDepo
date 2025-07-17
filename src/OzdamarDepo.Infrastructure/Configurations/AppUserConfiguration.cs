@@ -13,6 +13,10 @@ namespace OzdamarDepo.Infrastructure.Configurations
             builder.Property(p => p.LastName).HasColumnType("varchar(50)");
             builder.Property(p => p.UserName).HasColumnType("varchar(15)");
             builder.Property(p => p.Email).HasColumnType("varchar(MAX)");
+
+            builder.HasQueryFilter(x => !x.IsDeleted);
         }
+
+        
     }
 }

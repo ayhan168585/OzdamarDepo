@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using OzdamarDepo.Domain.MediaItems;
 using OzdamarDepo.Domain.Users;
 using Microsoft.AspNetCore.Http;
+using OzdamarDepo.Domain.Abstractions;
+using OzdamarDepo.Domain.Baskets;
 
 namespace OzdamarDepo.Infrastructure.Context;
 
@@ -19,6 +21,7 @@ internal sealed class ApplicationDbContext : IdentityDbContext<AppUser, Identity
     }
 
     public DbSet<MediaItem> MediaItems { get; set; }
+    public DbSet<Basket> Baskets { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -34,7 +37,7 @@ internal sealed class ApplicationDbContext : IdentityDbContext<AppUser, Identity
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        var entries = ChangeTracker.Entries<OzdamarDepo.Domain.Abstractions.Entity>();
+        var entries = ChangeTracker.Entries<Entity>();
 
         Guid? userId = null;
         var httpContext = _httpContextAccessor.HttpContext;

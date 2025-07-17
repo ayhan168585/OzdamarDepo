@@ -1,9 +1,11 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
+using OzdamarDepo.Application.Baskets;
 using OzdamarDepo.Application.MediaItems;
 using OzdamarDepo.Application.Users;
 
@@ -27,6 +29,7 @@ public class AppODataController(ISender sender) : ODataController
   
 
     [HttpGet("MediaItems")]
+    [AllowAnonymous]
     public async Task<IQueryable<MediaItemGetAllQueryResponse>> GetAllMediaItems(CancellationToken cancellationToken)
     {
         var response = await sender.Send(new MediaItemGetAllQuery(), cancellationToken);
@@ -37,6 +40,13 @@ public class AppODataController(ISender sender) : ODataController
     public async Task<IQueryable<UserGetAllQueryResponse>> GetAllUsers(CancellationToken cancellationToken)
     {
         var response = await sender.Send(new UserGetAllQuery(), cancellationToken);
+        return response;
+    }
+
+    [HttpGet("baskets")]
+    public async Task<IQueryable<BasketGetAllQueryResponse>> GetAllBaskets(CancellationToken cancellationToken)
+    {
+        var response = await sender.Send(new BasketGetAllQuery(), cancellationToken);
         return response;
     }
 } 

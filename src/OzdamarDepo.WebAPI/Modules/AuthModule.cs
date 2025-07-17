@@ -1,5 +1,7 @@
 ﻿using MediatR;
 using OzdamarDepo.Application.Auth;
+using OzdamarDepo.Application.MediaItems;
+using OzdamarDepo.Application.Users;
 using TS.Result;
 
 namespace OzdamarDepo.WebAPI.Modules
@@ -24,7 +26,18 @@ namespace OzdamarDepo.WebAPI.Modules
                    return response.IsSuccessful ? Results.Ok(response) : Results.InternalServerError(response);
                })
                .Produces<Result<string>>().AllowAnonymous();
-               
+
+            group.MapDelete("{id}",
+           async (Guid Id, ISender sender, CancellationToken cancellationToken) =>
+           {
+               var response = await sender.Send(new UserDeleteCommand(Id), cancellationToken);
+               return response.IsSuccessful ? Results.Ok(response) : Results.InternalServerError(response);
+
+           })
+
+       .Produces<Result<string>>().
+           WithName("UserDelete");
+
         }
     }
 }

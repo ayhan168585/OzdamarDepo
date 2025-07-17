@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
 using OzdamarDepo.Domain.Abstractions;
-using OzdamarDepo.Domain.MediaItems;
 using OzdamarDepo.Domain.Users;
 
 namespace OzdamarDepo.Application.Users
@@ -28,28 +22,39 @@ namespace OzdamarDepo.Application.Users
     {
         public Task<IQueryable<UserGetAllQueryResponse>> Handle(UserGetAllQuery request, CancellationToken cancellationToken)
         {
-            var response = (from user in userRepository.GetAll()
-                            join create_user in userManager.Users.AsQueryable() on user.CreateUserId equals create_user.Id
-                            join update_user in userManager.Users.AsQueryable() on user.UpdateUserId equals update_user.Id into update_user
-                            from update_users in update_user.DefaultIfEmpty()
-                            select new UserGetAllQueryResponse
-                            {
-                                FirstName = user.FirstName,
-                                LastName = user.LastName,
-                                CreatedAt = user.CreatedAt,
-                                UpdatedAt = user.UpdatedAt,
-                                DeletedAt = user.DeletedAt,
-                                Id = user.Id,
-                                IsDeleted = user.IsDeleted,
-                                CreateUserId = user.CreateUserId,
-                                UpdateUserId = user.UpdateUserId,
-                                CreateUserName = create_user.FirstName + " " + create_user.LastName + "(" + create_user.Email + ")",
-                                UpdateUserName = user.UpdateUserId == null ? null : create_user.FirstName + " " + create_user.LastName + "(" + create_user.Email + ")"
+            var users = userRepository.GetAll().ToList();
+            var appUsers = userManager.Users.ToList();
 
+            var response = users.Select(user =>
+            {
+                var Email=appUsers.FirstOrDefault(u => u.Id == user.Id)?.Email ?? string.Empty;
+                var UserName = appUsers.FirstOrDefault(u => u.Id == user.Id)?.UserName ?? string.Empty;
+                var Password = appUsers.FirstOrDefault(u => u.Id == user.Id)?.PasswordHash ?? string.Empty;
+              
+                var createUser = appUsers.FirstOrDefault(u => u.Id == user.CreateUserId);
+                var updateUser = appUsers.FirstOrDefault(u => u.Id == user.UpdateUserId);
 
+                return new UserGetAllQueryResponse
+                {
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    UserName = UserName,
+                    Email = Email,
+                    Password = Password,
+                    CreatedAt = user.CreatedAt,
+                    UpdatedAt = user.UpdatedAt,
+                    DeletedAt = user.DeletedAt,
+                    Id = user.Id,
+                    IsDeleted = user.IsDeleted,
+                    CreateUserId = user.CreateUserId,
+                    UpdateUserId = user.UpdateUserId,
+                    CreateUserName = createUser is not null ? $"{createUser.FirstName} {createUser.LastName} ({createUser.Email})" : null,
+                    UpdateUserName = updateUser is not null ? $"{updateUser.FirstName} {updateUser.LastName} ({updateUser.Email})" : null
+                };
+            }).AsQueryable();
 
-                            }).AsQueryable();
             return Task.FromResult(response);
+
         }
     }
 }

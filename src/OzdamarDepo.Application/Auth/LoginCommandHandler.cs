@@ -43,7 +43,16 @@ namespace OzdamarDepo.Application.Auth
 
             var token = await jwtProvider.CreateTokenAsync(user, cancellationToken);
 
-            var response = new LoginCommandResponse() { AccessToken = token };
+            var response = new LoginCommandResponse()
+            {
+                AccessToken = token,
+                User = new UserDto
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                }
+            };
 
             return response;
         }

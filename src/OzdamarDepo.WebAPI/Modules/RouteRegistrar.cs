@@ -6,6 +6,8 @@
         {
             app.RegisterMediaItemRoutes();
             app.RegisterAuthRoutes();
+            app.RegisterBasketRoutes();
+
 
         }
     }

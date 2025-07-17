@@ -7,26 +7,22 @@
   <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="12.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.OData" Version="9.4.0-preview" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.7" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0-preview.6.25358.103">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Scalar.AspNetCore" Version="2.6.1" />
-    <PackageReference Include="TS.Result" Version="9.0.1" />
-  </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\OzdamarDepo.Application\OzdamarDepo.Application.csproj" />
-    <ProjectReference Include="..\OzdamarDepo.Infrastructure\OzdamarDepo.Infrastructure.csproj" />
-    <ProjectReference Include="..\OzdamarDepo.ServiceDefaults\OzdamarDepo.ServiceDefaults.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.OData" Version="9.1.3" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.7" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Scalar.AspNetCore" Version="2.0.2" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <ProjectReference Include="..\OzdamarDepo.Application\OzdamarDepo.Application.csproj" />
+	  <ProjectReference Include="..\OzdamarDepo.Infrastructure\OzdamarDepo.Infrastructure.csproj" />
+	  <ProjectReference Include="..\OzdamarDepo.ServiceDefaults\OzdamarDepo.ServiceDefaults.csproj" />
+	</ItemGroup>
 
 </Project>
