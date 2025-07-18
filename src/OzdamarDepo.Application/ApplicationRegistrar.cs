@@ -1,6 +1,8 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using OzdamarDepo.Application.Behaviors;
+using MediatR;
+
 
 namespace OzdamarDepo.Application;
 
@@ -14,8 +16,14 @@ public static class ApplicationRegistrar
             config.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
 
-        services.AddValidatorsFromAssembly(typeof(ApplicationRegistrar).Assembly);
         
+
+
+        services.AddValidatorsFromAssembly(typeof(ApplicationRegistrar).Assembly);
+
+      
+
+
         return services;
     }
 } 

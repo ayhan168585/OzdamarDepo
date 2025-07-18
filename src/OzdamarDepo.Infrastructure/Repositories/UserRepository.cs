@@ -9,7 +9,7 @@ using OzdamarDepo.Infrastructure.Context;
 
 namespace OzdamarDepo.Infrastructure.Repositories
 {
-    internal sealed class UserRepository : Repository<AppUser, ApplicationDbContext>, IUserRepository
+    public sealed class UserRepository : Repository<AppUser, ApplicationDbContext>, IUserRepository
     {
         public UserRepository(ApplicationDbContext context) : base(context)
         {

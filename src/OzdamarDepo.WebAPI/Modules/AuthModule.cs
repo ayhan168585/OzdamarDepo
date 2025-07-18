@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using OzdamarDepo.Application.Auth;
-using OzdamarDepo.Application.MediaItems;
 using OzdamarDepo.Application.Users;
 using TS.Result;
 

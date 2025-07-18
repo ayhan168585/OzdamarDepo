@@ -1,30 +1,29 @@
 ﻿using MediatR;
-using OzdamarDepo.Application.Baskets;
-using OzdamarDepo.Application.MediaItems;
-using OzdamarDepo.Domain.Baskets;
+using OzdamarDepo.Application.Orders;
+using OzdamarDepo.Domain.Orders;
 using TS.Result;
 
 namespace OzdamarDepo.WebAPI.Modules
 {
-    public static class BasketModule
+    public static class OrderModule
     {
-        public static void RegisterBasketRoutes(this IEndpointRouteBuilder app)
+        public static void RegisterOrderRoutes(this IEndpointRouteBuilder app)
         {
-            RouteGroupBuilder group = app.MapGroup("/baskets").WithTags("baskets");
+            RouteGroupBuilder group = app.MapGroup("/orders").WithTags("orders");
 
             group.MapPost("",
-                async (ISender sender, BasketCreateCommand request, CancellationToken cancellationToken) =>
+                async (ISender sender, OrderCreateCommand request, CancellationToken cancellationToken) =>
                 {
                     var response = await sender.Send(request, cancellationToken);
-                    return response.IsSuccessful
+                    return response!.ToString() == "Success"
                         ? Results.Ok(response)
                         : Results.InternalServerError(response);
                 })
                 .Produces<Result<string>>().
-                WithName("BasketCreate");
+                WithName("OrderCreate");
 
             group.MapPut(string.Empty,
-         async (ISender sender, BasketUpdateCommand request, CancellationToken cancellationToken) =>
+         async (ISender sender, OrderUpdateCommand request, CancellationToken cancellationToken) =>
          {
              var response = await sender.Send(request, cancellationToken);
              return response.IsSuccessful
@@ -32,7 +31,7 @@ namespace OzdamarDepo.WebAPI.Modules
                  : Results.InternalServerError(response);
          })
          .Produces<Result<string>>().
-         WithName("BasketUpdate");
+         WithName("OrderUpdate");
 
 
             // group.MapPut("update-status",
@@ -49,21 +48,22 @@ namespace OzdamarDepo.WebAPI.Modules
             group.MapGet("{id}",
                  async (ISender sender, Guid id, CancellationToken cancellationToken) =>
                  {
-                     var response = await sender.Send(new BasketGetQuery(id), cancellationToken);
+                     var response = await sender.Send(new OrderGetQuery(id), cancellationToken);
                      return response.IsSuccessful ? Results.Ok(response) : Results.InternalServerError(response);
                  })
-                 .Produces<Result<Basket>>().
-                 WithName("BasketGet");
+                 .Produces<Result<Order>>().
+                 WithName("OrderGet");
 
             group.MapDelete("{id}",
                async (Guid Id, ISender sender, CancellationToken cancellationToken) =>
                {
-                   var response = await sender.Send(new BasketDeleteCommand(Id), cancellationToken);
+                   var response = await sender.Send(new OrderDeleteCommand(Id), cancellationToken);
                    return response.IsSuccessful ? Results.Ok(response) : Results.InternalServerError(response);
                })
 
            .Produces<Result<string>>().
-               WithName("BasketDelete");
+               WithName("OrderDelete");
         }
     }
+
 }

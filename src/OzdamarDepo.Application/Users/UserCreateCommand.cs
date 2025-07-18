@@ -30,7 +30,7 @@ namespace OzdamarDepo.Application.Auth
         }
     }
 
-    internal sealed class UserCreateCommandHandler(UserManager<AppUser> userManager) : IRequestHandler<UserCreateCommand, Result<string>>
+    public sealed class UserCreateCommandHandler(UserManager<AppUser> userManager) : IRequestHandler<UserCreateCommand, Result<string>>
     {
         public async Task<Result<string>> Handle(UserCreateCommand request, CancellationToken cancellationToken)
         {

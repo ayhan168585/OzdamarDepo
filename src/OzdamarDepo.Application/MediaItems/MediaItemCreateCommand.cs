@@ -30,7 +30,7 @@ namespace OzdamarDepo.Application.MediaItems
         }
     }
 
-    internal sealed class MediaItemCreateCommandHandler(
+    public sealed class MediaItemCreateCommandHandler(
         IMediaItemRepository mediaItemRepository,
         IUnitOfWork unitOfWork) : IRequestHandler<MediaItemCreateCommand, Result<string>>
     {

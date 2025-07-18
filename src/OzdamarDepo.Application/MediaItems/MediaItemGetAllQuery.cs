@@ -1,7 +1,7 @@
-using OzdamarDepo.Domain.Abstractions;
-using OzdamarDepo.Domain.MediaItems;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using OzdamarDepo.Domain.Abstractions;
+using OzdamarDepo.Domain.MediaItems;
 using OzdamarDepo.Domain.Users;
 
 namespace OzdamarDepo.Application.MediaItems;
@@ -26,7 +26,7 @@ public sealed class MediaItemGetAllQueryResponse : EntityDto
     public int DiscCount { get; set; }
 }
 
-internal sealed class MediaItemsGetAllQueryHandler(IMediaItemRepository mediaItemRepository, UserManager<AppUser> userManager) : IRequestHandler<MediaItemGetAllQuery, IQueryable<MediaItemGetAllQueryResponse>>
+public sealed class MediaItemsGetAllQueryHandler(IMediaItemRepository mediaItemRepository, UserManager<AppUser> userManager) : IRequestHandler<MediaItemGetAllQuery, IQueryable<MediaItemGetAllQueryResponse>>
 {
     public Task<IQueryable<MediaItemGetAllQueryResponse>> Handle(MediaItemGetAllQuery request, CancellationToken cancellationToken)
     {

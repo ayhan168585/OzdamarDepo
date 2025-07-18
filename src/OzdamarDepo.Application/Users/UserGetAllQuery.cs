@@ -18,7 +18,7 @@ namespace OzdamarDepo.Application.Users
       
     }
 
-    internal sealed class UserGetAllQueryHandler(IUserRepository userRepository, UserManager<AppUser> userManager) : IRequestHandler<UserGetAllQuery, IQueryable<UserGetAllQueryResponse>>
+    public sealed class UserGetAllQueryHandler(IUserRepository userRepository, UserManager<AppUser> userManager) : IRequestHandler<UserGetAllQuery, IQueryable<UserGetAllQueryResponse>>
     {
         public Task<IQueryable<UserGetAllQueryResponse>> Handle(UserGetAllQuery request, CancellationToken cancellationToken)
         {

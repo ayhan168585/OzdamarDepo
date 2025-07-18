@@ -8,10 +8,11 @@ using OzdamarDepo.Domain.Users;
 using Microsoft.AspNetCore.Http;
 using OzdamarDepo.Domain.Abstractions;
 using OzdamarDepo.Domain.Baskets;
+using OzdamarDepo.Domain.Orders;
 
 namespace OzdamarDepo.Infrastructure.Context;
 
-internal sealed class ApplicationDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>, IUnitOfWork
+public sealed class ApplicationDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>, IUnitOfWork
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -22,6 +23,7 @@ internal sealed class ApplicationDbContext : IdentityDbContext<AppUser, Identity
 
     public DbSet<MediaItem> MediaItems { get; set; }
     public DbSet<Basket> Baskets { get; set; }
+    public DbSet<Order> Orders { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

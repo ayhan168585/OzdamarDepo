@@ -7,7 +7,7 @@ namespace OzdamarDepo.Application.MediaItems
     public sealed record MediaItemGetQuery(
         Guid Id) : IRequest<Result<MediaItem>>;
 
-    internal sealed class MediaItemGetQueryHandler(IMediaItemRepository mediaItemRepository) : IRequestHandler<MediaItemGetQuery, Result<MediaItem>>
+    public sealed class MediaItemGetQueryHandler(IMediaItemRepository mediaItemRepository) : IRequestHandler<MediaItemGetQuery, Result<MediaItem>>
     {
         public async Task<Result<MediaItem>> Handle(MediaItemGetQuery request, CancellationToken cancellationToken)
         {

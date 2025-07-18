@@ -7,7 +7,7 @@ using TS.Result;
 
 namespace OzdamarDepo.Application.Auth
 {
-    internal sealed class LoginCommandHandler(UserManager<AppUser> usermanager, SignInManager<AppUser> signInManager, IJwtProvider jwtProvider) : IRequestHandler<LoginCommand, Result<LoginCommandResponse>>
+    public sealed class LoginCommandHandler(UserManager<AppUser> usermanager, SignInManager<AppUser> signInManager, IJwtProvider jwtProvider) : IRequestHandler<LoginCommand, Result<LoginCommandResponse>>
     {
         public async Task<Result<LoginCommandResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
         {

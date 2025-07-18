@@ -30,7 +30,7 @@ public sealed class MediaItemUpdateCommandValidator : AbstractValidator<MediaIte
     }
 }
 
-internal sealed class MediaItemUpdateCommandHandler(
+public sealed class MediaItemUpdateCommandHandler(
         IMediaItemRepository mediaItemRepository,
         IUnitOfWork unitOfWork) : IRequestHandler<MediaItemUpdateCommand, Result<string>>
 {

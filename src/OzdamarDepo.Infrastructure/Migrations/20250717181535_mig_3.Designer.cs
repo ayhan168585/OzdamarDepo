@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OzdamarDepo.Infrastructure.Context;
 
@@ -11,9 +12,11 @@ using OzdamarDepo.Infrastructure.Context;
 namespace OzdamarDepo.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250717181535_mig_3")]
+    partial class mig_3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,6 +84,9 @@ namespace OzdamarDepo.Infrastructure.Migrations
                     b.Property<Guid?>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("OrderId1")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -96,6 +102,8 @@ namespace OzdamarDepo.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("OrderId1");
 
                     b.ToTable("Baskets");
                 });
@@ -322,10 +330,14 @@ namespace OzdamarDepo.Infrastructure.Migrations
 
             modelBuilder.Entity("OzdamarDepo.Domain.Baskets.Basket", b =>
                 {
-                    b.HasOne("OzdamarDepo.Domain.Orders.Order", "Order")
+                    b.HasOne("OzdamarDepo.Domain.Orders.Order", null)
                         .WithMany("Baskets")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("OzdamarDepo.Domain.Orders.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId1");
 
                     b.Navigation("Order");
                 });

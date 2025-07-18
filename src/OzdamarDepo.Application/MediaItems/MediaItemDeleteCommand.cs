@@ -7,7 +7,7 @@ namespace OzdamarDepo.Application.MediaItems;
 public sealed record MediaItemDeleteCommand(
     Guid Id) : IRequest<Result<string>>;
 
-internal sealed class MediaItemDeleteCommandHandler(IMediaItemRepository mediaItemRepository, IUnitOfWork unitOfWork) : IRequestHandler<MediaItemDeleteCommand, Result<string>>
+public sealed class MediaItemDeleteCommandHandler(IMediaItemRepository mediaItemRepository, IUnitOfWork unitOfWork) : IRequestHandler<MediaItemDeleteCommand, Result<string>>
 {
     public async Task<Result<string>> Handle(MediaItemDeleteCommand request, CancellationToken cancellationToken)
     {

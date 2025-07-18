@@ -1,10 +1,10 @@
 ﻿namespace OzdamarDepo.Application.Baskets
 {
-    using OzdamarDepo.Domain.Abstractions;
     using MediatR;
     using Microsoft.AspNetCore.Identity;
-    using OzdamarDepo.Domain.Users;
+    using OzdamarDepo.Domain.Abstractions;
     using OzdamarDepo.Domain.Baskets;
+    using OzdamarDepo.Domain.Users;
 
     public sealed record BasketGetAllQuery() : IRequest<IQueryable<BasketGetAllQueryResponse>>;
 
@@ -18,7 +18,7 @@
         public string MediaItemImageUrl { get; set; } = default!;
     }
 
-    internal sealed class BasketsGetAllQueryHandler(IBasketRepository basketRepository, UserManager<AppUser> userManager) : IRequestHandler<BasketGetAllQuery, IQueryable<BasketGetAllQueryResponse>>
+    public sealed class BasketsGetAllQueryHandler(IBasketRepository basketRepository, UserManager<AppUser> userManager) : IRequestHandler<BasketGetAllQuery, IQueryable<BasketGetAllQueryResponse>>
     {
         public Task<IQueryable<BasketGetAllQueryResponse>> Handle(BasketGetAllQuery request, CancellationToken cancellationToken)
         {

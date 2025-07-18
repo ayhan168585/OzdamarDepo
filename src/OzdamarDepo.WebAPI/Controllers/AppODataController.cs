@@ -7,6 +7,7 @@ using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using OzdamarDepo.Application.Baskets;
 using OzdamarDepo.Application.MediaItems;
+using OzdamarDepo.Application.Orders;
 using OzdamarDepo.Application.Users;
 
 namespace OzdamarDepo.WebAPI.Controllers;
@@ -47,6 +48,13 @@ public class AppODataController(ISender sender) : ODataController
     public async Task<IQueryable<BasketGetAllQueryResponse>> GetAllBaskets(CancellationToken cancellationToken)
     {
         var response = await sender.Send(new BasketGetAllQuery(), cancellationToken);
+        return response;
+    }
+
+    [HttpGet("orders")]
+    public async Task<IQueryable<OrderGetAllQueryResponse>> GetAllOrders(CancellationToken cancellationToken)
+    {
+        var response = await sender.Send(new OrderGetAllQuery(), cancellationToken);
         return response;
     }
 } 

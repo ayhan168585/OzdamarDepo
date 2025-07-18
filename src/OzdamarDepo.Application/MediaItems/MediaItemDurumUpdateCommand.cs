@@ -18,7 +18,7 @@ public sealed class MediaItemDurumUpdateCommandValidator : AbstractValidator<Med
     }
 }
 
-internal sealed class MediaItemDurumUpdateCommandHandler(IMediaItemRepository mediaItemRepository, IUnitOfWork unitOfWork) : IRequestHandler<MediaItemDurumUpdateCommand, Result<string>>
+public sealed class MediaItemDurumUpdateCommandHandler(IMediaItemRepository mediaItemRepository, IUnitOfWork unitOfWork) : IRequestHandler<MediaItemDurumUpdateCommand, Result<string>>
 {
     public async Task<Result<string>> Handle(MediaItemDurumUpdateCommand request, CancellationToken cancellationToken)
     {

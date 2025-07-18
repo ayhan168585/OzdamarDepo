@@ -23,7 +23,7 @@ namespace OzdamarDepo.Application.MediaItems
         }
     }
 
-    internal sealed class BasketCreateCommandHandler(
+    public sealed class BasketCreateCommandHandler(
         IBasketRepository basketRepository,
         IUnitOfWork unitOfWork) : IRequestHandler<BasketCreateCommand, Result<string>>
     {
@@ -38,6 +38,8 @@ namespace OzdamarDepo.Application.MediaItems
             basket.MediaItemId = request.MediaItemId;
             basket.MediaItemPrice = request.MediaItemPrice;
             basket.Quantity = request.Quantity;
+
+
            
             await basketRepository.AddAsync(basket);
             await unitOfWork.SaveChangesAsync(cancellationToken);

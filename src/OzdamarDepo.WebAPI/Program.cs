@@ -16,6 +16,8 @@ builder.Services.AddResponseCompression(opt =>
     opt.EnableForHttps = true;
 });
 
+
+
 builder.AddServiceDefaults();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
