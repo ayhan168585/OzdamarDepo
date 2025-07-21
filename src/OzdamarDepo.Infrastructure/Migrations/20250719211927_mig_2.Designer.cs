@@ -12,8 +12,8 @@ using OzdamarDepo.Infrastructure.Context;
 namespace OzdamarDepo.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250717182819_mig_4")]
-    partial class mig_4
+    [Migration("20250719211927_mig_2")]
+    partial class mig_2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -97,6 +97,8 @@ namespace OzdamarDepo.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MediaItemId");
 
                     b.HasIndex("OrderId");
 
@@ -325,10 +327,18 @@ namespace OzdamarDepo.Infrastructure.Migrations
 
             modelBuilder.Entity("OzdamarDepo.Domain.Baskets.Basket", b =>
                 {
+                    b.HasOne("OzdamarDepo.Domain.MediaItems.MediaItem", "MediaItem")
+                        .WithMany("Baskets")
+                        .HasForeignKey("MediaItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("OzdamarDepo.Domain.Orders.Order", "Order")
                         .WithMany("Baskets")
                         .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("MediaItem");
 
                     b.Navigation("Order");
                 });
@@ -380,6 +390,11 @@ namespace OzdamarDepo.Infrastructure.Migrations
                     b.Navigation("MediaCondition");
 
                     b.Navigation("MediaType");
+                });
+
+            modelBuilder.Entity("OzdamarDepo.Domain.MediaItems.MediaItem", b =>
+                {
+                    b.Navigation("Baskets");
                 });
 
             modelBuilder.Entity("OzdamarDepo.Domain.Orders.Order", b =>

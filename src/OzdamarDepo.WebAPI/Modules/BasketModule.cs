@@ -23,16 +23,20 @@ namespace OzdamarDepo.WebAPI.Modules
                 .Produces<Result<string>>().
                 WithName("BasketCreate");
 
-            group.MapPut(string.Empty,
-         async (ISender sender, BasketUpdateCommand request, CancellationToken cancellationToken) =>
+            group.MapPut("{id}",
+         async (Guid id, ISender sender, BasketUpdateCommand request, CancellationToken cancellationToken) =>
          {
+             if (id != request.Id)
+                 return Results.BadRequest("URL'deki id ile gönderilen id eşleşmiyor");
+
              var response = await sender.Send(request, cancellationToken);
              return response.IsSuccessful
                  ? Results.Ok(response)
                  : Results.InternalServerError(response);
          })
-         .Produces<Result<string>>().
-         WithName("BasketUpdate");
+         .Produces<Result<string>>()
+         .WithName("BasketUpdate");
+
 
 
             // group.MapPut("update-status",

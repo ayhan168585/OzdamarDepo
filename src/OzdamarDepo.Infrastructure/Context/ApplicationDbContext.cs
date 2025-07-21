@@ -1,14 +1,15 @@
 ﻿using GenericRepository;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using OzdamarDepo.Domain.MediaItems;
-using OzdamarDepo.Domain.Users;
-using Microsoft.AspNetCore.Http;
 using OzdamarDepo.Domain.Abstractions;
 using OzdamarDepo.Domain.Baskets;
+using OzdamarDepo.Domain.MediaItems;
 using OzdamarDepo.Domain.Orders;
+using OzdamarDepo.Domain.Users;
+using System.Security.Claims;
 
 namespace OzdamarDepo.Infrastructure.Context;
 
@@ -35,6 +36,54 @@ public sealed class ApplicationDbContext : IdentityDbContext<AppUser, IdentityRo
         modelBuilder.Ignore<IdentityUserRole<Guid>>();
         modelBuilder.Ignore<IdentityUserClaim<Guid>>();
 
+
+
+
+        modelBuilder.Entity<Order>()
+       .HasMany(o => o.Baskets)
+       .WithOne(b => b.Order)
+       .HasForeignKey(b => b.OrderId)
+       .OnDelete(DeleteBehavior.Restrict); // Optional: Order silinince basket silinmesin
+
+        modelBuilder.Entity<Basket>()
+            .HasOne(b => b.MediaItem)
+            .WithMany()
+            .HasForeignKey(b => b.MediaItemId);
+
+        modelBuilder.Entity<Basket>()
+            .HasOne(b => b.User)
+            .WithMany()
+            .HasForeignKey(b => b.UserId);
+
+        modelBuilder.Entity<Basket>()
+    .HasOne(b => b.Order)
+    .WithMany(o => o.Baskets)
+    .HasForeignKey(b => b.OrderId)
+    .IsRequired(false); //
+
+    //    modelBuilder.Entity<Basket>()
+    //.HasOne(b => b.MediaItem)
+    //.WithMany()
+    //.HasForeignKey(b => b.MediaItemId)
+    //.OnDelete(DeleteBehavior.NoAction); // ya da
+
+        modelBuilder.Entity<MediaItem>()
+       .HasMany(m => m.Baskets)
+       .WithOne(b => b.MediaItem)
+       .HasForeignKey(b => b.MediaItemId)
+       .OnDelete(DeleteBehavior.Restrict); // veya SetNull/Cascade
+
+       
+        //modelBuilder.Entity<Basket>()
+        //    .HasOne(b => b.Order)
+        //    .WithMany(o => o.Baskets)
+        //    .HasForeignKey(b => b.OrderId);
+
+        //modelBuilder.Entity<Basket>()
+        //    .HasOne(b => b.User)
+        //    .WithMany()
+        //    .HasForeignKey(b => b.UserId);
+
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -45,11 +94,13 @@ public sealed class ApplicationDbContext : IdentityDbContext<AppUser, IdentityRo
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext != null && httpContext.User.Identity is { IsAuthenticated: true })
         {
-            var userIdClaim = httpContext.User.Claims.FirstOrDefault(c => c.Type == "user-id");
-            if (userIdClaim != null)
+            var userIdClaim = httpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier || c.Type == "user-id");
+
+            if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var parsedUserId))
             {
-                userId = Guid.Parse(userIdClaim.Value);
+                userId = parsedUserId;
             }
+
         }
 
         foreach (var entry in entries)
@@ -75,7 +126,7 @@ public sealed class ApplicationDbContext : IdentityDbContext<AppUser, IdentityRo
 
             if (entry.State == EntityState.Deleted)
             {
-                throw new ArgumentException("Db'den direkt silme işlemi yapamazsınız!");
+                throw new ArgumentException($"'{entry.Entity.GetType().Name}' nesnesi veritabanından doğrudan silinemez. Soft-delete uygulanmalıdır.");
             }
         }
 

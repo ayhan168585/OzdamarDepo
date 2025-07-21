@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
@@ -24,6 +24,18 @@ public class AppODataController(ISender sender) : ODataController
         builder.EnableLowerCamelCase();
         builder.EntitySet<MediaItemGetAllQueryResponse>("mediaItems");
         builder.EntitySet<UserGetAllQueryResponse>("users");
+        builder.EntitySet<BasketGetAllQueryResponse>("baskets");
+        builder.EntitySet<OrderGetAllQueryResponse>("orders");
+        builder.EntityType<OrderGetAllQueryResponse>()
+                  .HasMany(o => o.Baskets); // Nested expand
+        builder.EntityType<BasketGetAllQueryResponse>()
+       .Property(x => x.UserId);
+        builder.EntityType<OrderGetAllQueryResponse>()
+       .Property(x => x.UserId); // tip zaten Guid
+
+        //builder.EntityType<BasketWithMediaItemDto>()
+        //       .HasRequired(b => b.MediaItem); // Eğer $expand=baskets/mediaItem yapmak istersen
+
         return builder.GetEdmModel();
     }
 
@@ -44,6 +56,7 @@ public class AppODataController(ISender sender) : ODataController
         return response;
     }
 
+    [EnableQuery]
     [HttpGet("baskets")]
     public async Task<IQueryable<BasketGetAllQueryResponse>> GetAllBaskets(CancellationToken cancellationToken)
     {
@@ -51,10 +64,11 @@ public class AppODataController(ISender sender) : ODataController
         return response;
     }
 
-    [HttpGet("orders")]
-    public async Task<IQueryable<OrderGetAllQueryResponse>> GetAllOrders(CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(new OrderGetAllQuery(), cancellationToken);
-        return response;
-    }
+    //[EnableQuery]
+    //[HttpGet("orders")]
+    //public async Task<IQueryable<OrderGetAllQueryResponse>> GetAllOrders(CancellationToken cancellationToken)
+    //{
+    //    var response = await sender.Send(new OrderGetAllQuery(), cancellationToken);
+    //    return response;
+    //}
 } 

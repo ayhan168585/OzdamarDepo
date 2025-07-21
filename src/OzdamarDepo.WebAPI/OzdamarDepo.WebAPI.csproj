@@ -9,15 +9,16 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.OData" Version="9.1.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.6" />
+		<PackageReference Include="Microsoft.AspNetCore.OData" Version="9.3.2" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.7" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
+		<PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Core" Version="2.3.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Scalar.AspNetCore" Version="2.0.2" />
-		<PackageReference Include="TS.MediatR" Version="9.0.6" />
-		<PackageReference Include="TS.Result" Version="9.0.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.6" />
+		<PackageReference Include="Scalar.AspNetCore" Version="2.6.3" />
 	</ItemGroup>
 
 

@@ -1,9 +1,10 @@
 using GenericRepository;
+using System.Threading.Tasks;
 
 namespace OzdamarDepo.Domain.MediaItems;
 
 public interface IMediaItemRepository : IRepository<MediaItem>
 {
-    // Özel sorgu örneği
+    Task<MediaItem?> GetByIdAsync(Guid id);
 
 }

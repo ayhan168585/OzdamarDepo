@@ -3,6 +3,7 @@ using GenericRepository;
 using Mapster;
 using MediatR;
 using OzdamarDepo.Domain.Baskets;
+using OzdamarDepo.Domain.MediaItems;
 using TS.Result;
 
 namespace OzdamarDepo.Application.MediaItems
@@ -24,29 +25,33 @@ namespace OzdamarDepo.Application.MediaItems
     }
 
     public sealed class BasketCreateCommandHandler(
-        IBasketRepository basketRepository,
-        IUnitOfWork unitOfWork) : IRequestHandler<BasketCreateCommand, Result<string>>
+    IBasketRepository basketRepository,
+    IMediaItemRepository mediaItemRepository,
+    IUnitOfWork unitOfWork) : IRequestHandler<BasketCreateCommand, Result<string>>
     {
         public async Task<Result<string>> Handle(BasketCreateCommand request, CancellationToken cancellationToken)
         {
+            var mediaItem = await mediaItemRepository.GetByIdAsync(request.MediaItemId);
+            if (mediaItem == null)
+                return Result<string>.Failure("Media item bulunamadı!");
 
-            Basket basket = request.Adapt<Basket>();
+            Basket basket = new()
+            {
+                UserId = request.UserId,
+                MediaItemId = mediaItem.Id,
+                MediaItemTitle = mediaItem.Title,
+                MediaItemPrice = mediaItem.Price,
+                MediaItemImageUrl = mediaItem.ImageUrl,
+                Quantity = request.Quantity,
+                IsInBasket = true // ✅ Yeni eklenen ürün sepette olarak işaretleniyor
 
-            basket.MediaItemTitle = request.MediaItemTitle;
-            basket.MediaItemImageUrl = request.MediaItemImageUrl;
-            basket.UserId = request.UserId;
-            basket.MediaItemId = request.MediaItemId;
-            basket.MediaItemPrice = request.MediaItemPrice;
-            basket.Quantity = request.Quantity;
+            };
 
-
-           
             await basketRepository.AddAsync(basket);
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<string>.Succeed("Sepet başarıyla eklendi!");
         }
-
-        
     }
+
 }

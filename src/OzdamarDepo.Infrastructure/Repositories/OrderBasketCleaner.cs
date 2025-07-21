@@ -10,7 +10,7 @@ namespace OzdamarDepo.Infrastructure.Repositories
         public async Task ClearUserBasketsAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             var baskets = await context.Baskets
-                .Where(b => b.UserId == userId && !b.IsDeleted)
+                .Where(b => b.UserId == userId && !b.IsDeleted) // 🔥 sadece siparişe dönüşmemişleri
                 .ToListAsync(cancellationToken);
 
             foreach (var basket in baskets)
@@ -20,6 +20,7 @@ namespace OzdamarDepo.Infrastructure.Repositories
 
             await context.SaveChangesAsync(cancellationToken);
         }
+
     }
 
 }

@@ -12,8 +12,8 @@ using OzdamarDepo.Infrastructure.Context;
 namespace OzdamarDepo.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250717181535_mig_3")]
-    partial class mig_3
+    [Migration("20250719161553_mig_1")]
+    partial class mig_1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -84,9 +84,6 @@ namespace OzdamarDepo.Infrastructure.Migrations
                     b.Property<Guid?>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("OrderId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -101,9 +98,9 @@ namespace OzdamarDepo.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId");
+                    b.HasIndex("MediaItemId");
 
-                    b.HasIndex("OrderId1");
+                    b.HasIndex("OrderId");
 
                     b.ToTable("Baskets");
                 });
@@ -330,14 +327,18 @@ namespace OzdamarDepo.Infrastructure.Migrations
 
             modelBuilder.Entity("OzdamarDepo.Domain.Baskets.Basket", b =>
                 {
-                    b.HasOne("OzdamarDepo.Domain.Orders.Order", null)
+                    b.HasOne("OzdamarDepo.Domain.MediaItems.MediaItem", "MediaItem")
+                        .WithMany("Baskets")
+                        .HasForeignKey("MediaItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OzdamarDepo.Domain.Orders.Order", "Order")
                         .WithMany("Baskets")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("OzdamarDepo.Domain.Orders.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId1");
+                    b.Navigation("MediaItem");
 
                     b.Navigation("Order");
                 });
@@ -389,6 +390,11 @@ namespace OzdamarDepo.Infrastructure.Migrations
                     b.Navigation("MediaCondition");
 
                     b.Navigation("MediaType");
+                });
+
+            modelBuilder.Entity("OzdamarDepo.Domain.MediaItems.MediaItem", b =>
+                {
+                    b.Navigation("Baskets");
                 });
 
             modelBuilder.Entity("OzdamarDepo.Domain.Orders.Order", b =>

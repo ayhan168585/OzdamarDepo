@@ -22,7 +22,7 @@ namespace OzdamarDepo.Application.Baskets
         {
             RuleFor(x => x.UserId).NotEmpty().WithMessage("Kullanıcı boş olamaz!");
             RuleFor(x => x.MediaItemId).NotEmpty().WithMessage("Ürün boş olamaz!");
-            RuleFor(x => x.MediaItemPrice).GreaterThan(0).WithMessage("Fiyat 0'dan büyük olmalıdır!");
+            //RuleFor(x => x.MediaItemPrice).GreaterThan(0).WithMessage("Fiyat 0'dan büyük olmalıdır!");
             RuleFor(x => x.MediaItemTitle).NotEmpty().WithMessage("Ürün adı boş olamaz!");
             RuleFor(x => x.MediaItemImageUrl).NotEmpty().WithMessage("Ürün görseli boş olamaz!");
             RuleFor(x => x.Quantity).GreaterThan(0).WithMessage("Adet 0'dan büyük olmalıdır!");

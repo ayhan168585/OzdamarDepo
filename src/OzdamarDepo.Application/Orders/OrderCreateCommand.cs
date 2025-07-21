@@ -23,7 +23,7 @@ string OrderNumber,
     int Cvv,
     string InstallmentOptions,
     string Status,
-    List<Basket> Baskets
+    List<Guid> BasketIds
 
 
     ) : IRequest<Result<string>>;
@@ -52,15 +52,20 @@ string OrderNumber,
     }
 
     public sealed class OrderCreateCommandHandler(
-    IOrderRepository orderRepository,
-    IUnitOfWork unitOfWork,
-    IOrderBasketCleaner basketCleaner)
-    : IRequestHandler<OrderCreateCommand, Result<string>>
+  IOrderRepository orderRepository,
+  IUnitOfWork unitOfWork,
+  IBasketRepository basketRepository,
+  IOrderBasketCleaner basketCleaner)
+  : IRequestHandler<OrderCreateCommand, Result<string>>
     {
         public async Task<Result<string>> Handle(OrderCreateCommand request, CancellationToken cancellationToken)
         {
+            var baskets = await basketRepository.GetByIdsAsync(request.BasketIds, cancellationToken);
+            var orderId = Guid.NewGuid();
+
             Order order = new()
             {
+                Id = orderId,
                 OrderNumber = request.OrderNumber,
                 Date = request.Date,
                 UserId = request.UserId,
@@ -75,25 +80,26 @@ string OrderNumber,
                 Cvv = request.Cvv,
                 InstallmentOptions = request.InstallmentOptions,
                 Status = request.Status,
-                Baskets = request.Baskets.Select(b => new Basket
-                {
-                    Id = Guid.NewGuid(),
-                    UserId = b.UserId,
-                    MediaItemId = b.MediaItemId,
-                    MediaItemTitle = b.MediaItemTitle,
-                    MediaItemPrice = b.MediaItemPrice,
-                    Quantity = b.Quantity,
-                    MediaItemImageUrl = b.MediaItemImageUrl
-                }).ToList()
+                Baskets = baskets
             };
 
+            foreach (var basket in baskets)
+            {
+                basket.OrderId = order.Id;
+                basket.IsInBasket = false; // ✅ EKLENDİ
+            }
+
+            await basketRepository.UpdateRangeAsync(baskets);
             await orderRepository.AddAsync(order);
             await unitOfWork.SaveChangesAsync(cancellationToken);
-
             await basketCleaner.ClearUserBasketsAsync(request.UserId, cancellationToken);
+
             return Result<string>.Succeed("Sipariş başarıyla eklendi!");
         }
     }
+
+
+
 
 
 }

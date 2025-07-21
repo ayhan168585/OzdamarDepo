@@ -1,6 +1,7 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using OzdamarDepo.Application;
 using OzdamarDepo.Infrastructure;
 using OzdamarDepo.WebAPI;
@@ -11,39 +12,40 @@ using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddResponseCompression(opt =>
-{
-    opt.EnableForHttps = true;
-});
+// Kestrel opsiyonel ayarlar
+//builder.WebHost.ConfigureKestrel(options =>
+//{
+//    options.ListenAnyIP(5000, o => o.Protocols = HttpProtocols.Http1AndHttp2);
+//    options.ListenAnyIP(5001, o => {
+//        o.UseHttps();
+//        o.Protocols = HttpProtocols.Http1AndHttp2;
+//    });
+//});
 
-
+// Middleware ve servis kayıtları
+builder.Services.AddResponseCompression(opt => opt.EnableForHttps = true);
 
 builder.AddServiceDefaults();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddCors();
 builder.Services.AddOpenApi();
-builder.Services
-    .AddControllers()
+
+builder.Services.AddControllers()
     .AddOData(opt =>
-        opt
-        .Select()
-        .Filter()
-        .Count()
-        .Expand()
-        .OrderBy()
-        .SetMaxTop(null)
-        .AddRouteComponents("odata", AppODataController.GetEdmModel())
-    )
-    ;
+        opt.Select().Filter().Count().Expand().OrderBy()
+            .SetMaxTop(null)
+            .AddRouteComponents("odata", AppODataController.GetEdmModel()));
+
 builder.Services.AddRateLimiter(x =>
-x.AddFixedWindowLimiter("fixed", cfg =>
-{
-    cfg.QueueLimit = 100;
-    cfg.Window = TimeSpan.FromSeconds(1);
-    cfg.PermitLimit = 100;
-    cfg.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-}));
+    x.AddFixedWindowLimiter("fixed", cfg =>
+    {
+        cfg.QueueLimit = 100;
+        cfg.Window = TimeSpan.FromSeconds(1);
+        cfg.PermitLimit = 100;
+        cfg.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    }));
+
 builder.Services.AddExceptionHandler<ExceptionHandler>().AddProblemDetails();
 
 builder.Services.AddAuthentication(options =>
@@ -51,38 +53,40 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer();
+
 builder.Services.AddAuthorization();
 
-//builder.Services.AddKeycloakWebApiAuthentication(builder.Configuration);
-//builder.Services.AddAuthorization().AddKeycloakAuthorization(builder.Configuration);
-
+// Build uygulama
 var app = builder.Build();
 
-app.MapOpenApi();
-app.MapScalarApiReference();
-
-app.MapDefaultEndpoints();
-
+// Middleware pipeline
 app.UseHttpsRedirection();
 
-app.UseCors(x => x
-.AllowAnyHeader()
-.AllowCredentials()
-.AllowAnyMethod()
-.SetIsOriginAllowed(t => true)
-.SetPreflightMaxAge(TimeSpan.FromMinutes(10)));
+app.UseRouting();
 
-app.RegisterRoutes();
+app.UseCors(x => x
+    .AllowAnyHeader()
+    .AllowCredentials()
+    .AllowAnyMethod()
+    .SetIsOriginAllowed(_ => true)
+    .SetPreflightMaxAge(TimeSpan.FromMinutes(10)));
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.UseResponseCompression();
-
 app.UseExceptionHandler();
 
-app.MapControllers().RequireRateLimiting("fixed").RequireAuthorization();
+app.MapControllers().RequireRateLimiting("fixed"); //.RequireAuthorization();
 
-ExtensionsMiddleware.CreateFirstUser(app);
+app.MapOpenApi();
+app.MapScalarApiReference();
+app.MapDefaultEndpoints();
+app.RegisterRoutes();
+
+// ✅ Kullanıcı oluşturmayı ApplicationStarted eventine bağla
+app.Lifetime.ApplicationStarted.Register(() =>
+{
+    ExtensionsMiddleware.CreateFirstUser(app);
+});
 
 app.Run();

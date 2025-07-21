@@ -6,12 +6,12 @@
     <Nullable>disable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Ardalis.SmartEnum" Version="8.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.7" />
-    <PackageReference Include="TS.EntityFrameworkCore.GenericRepository" Version="9.0.3" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Ardalis.SmartEnum" Version="8.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.1" />
+		<PackageReference Include="TS.EntityFrameworkCore.GenericRepository" Version="9.0.1" />
+	</ItemGroup>
 
  
 

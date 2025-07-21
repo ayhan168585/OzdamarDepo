@@ -13,7 +13,10 @@ namespace OzdamarDepo.Infrastructure.Configurations
                    .HasForeignKey(b => b.OrderId)
                    .OnDelete(DeleteBehavior.Cascade);
 
+
+
             builder.HasQueryFilter(x => !x.IsDeleted);
+
         }
 
     }

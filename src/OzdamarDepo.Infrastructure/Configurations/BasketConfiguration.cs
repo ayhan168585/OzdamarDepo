@@ -11,6 +11,16 @@ namespace OzdamarDepo.Infrastructure.Configurations
         {
             builder.Property(i => i.MediaItemPrice).HasColumnType("money");
 
+            builder.HasOne(b => b.MediaItem)
+              .WithMany(m => m.Baskets)
+              .HasForeignKey(b => b.MediaItemId);
+
+            builder.HasOne(b => b.Order)
+           .WithMany(o => o.Baskets)
+           .HasForeignKey(b => b.OrderId)
+           .OnDelete(DeleteBehavior.Cascade); // sipariş silinince sepet de silinir
+
+
             builder.HasQueryFilter(x => !x.IsDeleted);
         }
 

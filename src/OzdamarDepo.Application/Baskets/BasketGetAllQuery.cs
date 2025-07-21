@@ -6,50 +6,68 @@
     using OzdamarDepo.Domain.Baskets;
     using OzdamarDepo.Domain.Users;
 
-    public sealed record BasketGetAllQuery() : IRequest<IQueryable<BasketGetAllQueryResponse>>;
+    public record BasketGetAllQuery() : IRequest<IQueryable<BasketGetAllQueryResponse>>;
 
-    public sealed class BasketGetAllQueryResponse : EntityDto
+    public class BasketGetAllQueryResponse : EntityDto
     {
         public Guid UserId { get; set; }
         public Guid MediaItemId { get; set; }
-        public string MediaItemTitle { get; set; } = default!;
+        public string MediaItemTitle { get; set; } = string.Empty;
         public decimal MediaItemPrice { get; set; }
         public int Quantity { get; set; } = 1;
-        public string MediaItemImageUrl { get; set; } = default!;
+        public string MediaItemImageUrl { get; set; } = string.Empty;
+        public bool IsInBasket { get; init; } // ✅ Bunu ekle
+
+
+        // Audit info
+
     }
 
-    public sealed class BasketsGetAllQueryHandler(IBasketRepository basketRepository, UserManager<AppUser> userManager) : IRequestHandler<BasketGetAllQuery, IQueryable<BasketGetAllQueryResponse>>
+    public class BasketGetAllQueryHandler(
+        IBasketRepository basketRepository,
+        UserManager<AppUser> userManager)
+        : IRequestHandler<BasketGetAllQuery, IQueryable<BasketGetAllQueryResponse>>
     {
         public Task<IQueryable<BasketGetAllQueryResponse>> Handle(BasketGetAllQuery request, CancellationToken cancellationToken)
         {
-            var response = (from basket in basketRepository.GetAll()
-                            join create_user in userManager.Users.AsQueryable() on basket.CreateUserId equals create_user.Id
-                            join update_user in userManager.Users.AsQueryable() on basket.UpdateUserId equals update_user.Id into update_user
-                            from update_users in update_user.DefaultIfEmpty()
-                            select new BasketGetAllQueryResponse
-                            {
-                                UserId = basket.UserId,
-                                MediaItemId = basket.MediaItemId,
-                                MediaItemTitle = basket.MediaItemTitle,
-                                MediaItemPrice = basket.MediaItemPrice,
-                                Quantity = basket.Quantity,
-                              
-                                CreatedAt = basket.CreatedAt,
-                                UpdatedAt = basket.UpdatedAt,
-                                DeletedAt = basket.DeletedAt,
-                                Id = basket.Id,
-                                IsDeleted = basket.IsDeleted,
-                                MediaItemImageUrl = basket.MediaItemImageUrl,
-                                CreateUserId = basket.CreateUserId,
-                                UpdateUserId = basket.UpdateUserId,
-                                CreateUserName = create_user.FirstName + " " + create_user.LastName + "(" + create_user.Email + ")",
-                                UpdateUserName = basket.UpdateUserId == null ? null : create_user.FirstName + " " + create_user.LastName + "(" + create_user.Email + ")"
+            var query = from basket in basketRepository.GetAll()
+                        join createUser in userManager.Users.AsQueryable()
+                            on basket.CreateUserId equals createUser.Id into createUserGroup
+                        from createUser in createUserGroup.DefaultIfEmpty()
+
+                        join updateUser in userManager.Users.AsQueryable()
+                            on basket.UpdateUserId equals updateUser.Id into updateUserGroup
+                        from updateUser in updateUserGroup.DefaultIfEmpty()
+
+                        select new BasketGetAllQueryResponse
+                        {
+                            Id = basket.Id,
+                            UserId = basket.UserId,
+                            MediaItemId = basket.MediaItemId,
+                            MediaItemTitle = basket.MediaItemTitle,
+                            MediaItemPrice = basket.MediaItemPrice,
+                            Quantity = basket.Quantity,
+                            MediaItemImageUrl = basket.MediaItemImageUrl,
+                            IsInBasket = basket.IsInBasket, // ✅ Sepette mi değil mi?
 
 
+                            CreatedAt = basket.CreatedAt,
+                            UpdatedAt = basket.UpdatedAt,
+                            DeletedAt = basket.DeletedAt,
+                            IsDeleted = basket.IsDeleted,
+                            CreateUserId = basket.CreateUserId,
+                            UpdateUserId = basket.UpdateUserId,
 
-                            }).AsQueryable();
-            return Task.FromResult(response);
+                            CreateUserName = createUser == null
+                                ? null
+                                : $"{createUser.FirstName} {createUser.LastName} ({createUser.Email})",
+
+                            UpdateUserName = updateUser == null
+                                ? null
+                                : $"{updateUser.FirstName} {updateUser.LastName} ({updateUser.Email})"
+                        };
+
+            return Task.FromResult(query.AsQueryable());
         }
     }
-
 }

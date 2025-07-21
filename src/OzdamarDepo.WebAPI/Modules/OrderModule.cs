@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using OzdamarDepo.Application.Orders;
 using OzdamarDepo.Domain.Orders;
 using TS.Result;
@@ -12,8 +13,8 @@ namespace OzdamarDepo.WebAPI.Modules
             RouteGroupBuilder group = app.MapGroup("/orders").WithTags("orders");
 
             group.MapPost("",
-                async (ISender sender, OrderCreateCommand request, CancellationToken cancellationToken) =>
-                {
+    async (ISender sender, [FromBody] OrderCreateCommand request, CancellationToken cancellationToken) =>
+{
                     var response = await sender.Send(request, cancellationToken);
                     return response!.ToString() == "Success"
                         ? Results.Ok(response)

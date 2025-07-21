@@ -23,7 +23,12 @@ internal sealed class MediaItemConfiguration : IEntityTypeConfiguration<MediaIte
 
             builder.Property(i => i.Price).HasColumnType("money");
 
-            builder.HasQueryFilter(x => !x.IsDeleted);
+        builder.HasMany(m => m.Baskets)
+          .WithOne(b => b.MediaItem)
+          .HasForeignKey(b => b.MediaItemId)
+          .OnDelete(DeleteBehavior.Restrict); //
+
+        builder.HasQueryFilter(x => !x.IsDeleted);
 
 
     }

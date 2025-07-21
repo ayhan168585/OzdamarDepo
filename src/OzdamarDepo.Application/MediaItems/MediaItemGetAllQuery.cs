@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using OzdamarDepo.Domain.Abstractions;
 using OzdamarDepo.Domain.MediaItems;
 using OzdamarDepo.Domain.Users;
@@ -30,22 +31,28 @@ public sealed class MediaItemsGetAllQueryHandler(IMediaItemRepository mediaItemR
 {
     public Task<IQueryable<MediaItemGetAllQueryResponse>> Handle(MediaItemGetAllQuery request, CancellationToken cancellationToken)
     {
-        var response = (from mediaItem in mediaItemRepository.GetAll()
-                        join create_user in userManager.Users.AsQueryable() on mediaItem.CreateUserId equals create_user.Id
-                        join update_user in userManager.Users.AsQueryable() on mediaItem.UpdateUserId equals update_user.Id into update_user
-                        from update_users in update_user.DefaultIfEmpty()
+        var response = (from mediaItem in mediaItemRepository.GetAll().AsNoTracking()
+
+                        join create_user in userManager.Users.AsQueryable()
+                            on mediaItem.CreateUserId equals create_user.Id into create_user_join
+                        from create_user in create_user_join.DefaultIfEmpty()
+
+                        join update_user in userManager.Users.AsQueryable()
+                            on mediaItem.UpdateUserId equals update_user.Id into update_user_join
+                        from update_user in update_user_join.DefaultIfEmpty()
+
                         select new MediaItemGetAllQueryResponse
                         {
                             ArtistOrActor = mediaItem.ArtistOrActor,
                             Category = mediaItem.MediaType.Category,
                             Price = mediaItem.Price,
                             ConditionScore = mediaItem.MediaCondition.ConditionScore,
-                            Description=mediaItem.MediaCondition.Description,
+                            Description = mediaItem.MediaCondition.Description,
                             ReleaseDate = mediaItem.ReleaseDate,
-                            IsBoxSet=mediaItem.IsBoxSet,
-                            DiscCount=mediaItem.DiscCount,
-                            MediaDurumValue=(int)mediaItem.MediaDurum,
-                            MediaDurumName=mediaItem.MediaDurum.GetDisplayName(),
+                            IsBoxSet = mediaItem.IsBoxSet,
+                            DiscCount = mediaItem.DiscCount,
+                            MediaDurumValue = (int)mediaItem.MediaDurum,
+                            MediaDurumName = mediaItem.MediaDurum.GetDisplayName(),
                             CreatedAt = mediaItem.CreatedAt,
                             UpdatedAt = mediaItem.UpdatedAt,
                             DeletedAt = mediaItem.DeletedAt,
@@ -56,12 +63,10 @@ public sealed class MediaItemsGetAllQueryHandler(IMediaItemRepository mediaItemR
                             ImageUrl = mediaItem.ImageUrl,
                             CreateUserId = mediaItem.CreateUserId,
                             UpdateUserId = mediaItem.UpdateUserId,
-                            CreateUserName = create_user.FirstName + " " + create_user.LastName + "(" + create_user.Email + ")",
-                            UpdateUserName = mediaItem.UpdateUserId == null ? null : create_user.FirstName + " " + create_user.LastName + "(" + create_user.Email + ")"
-
-
-
+                            CreateUserName = create_user == null ? null : create_user.FirstName + " " + create_user.LastName + " (" + create_user.Email + ")",
+                            UpdateUserName = update_user == null ? null : update_user.FirstName + " " + update_user.LastName + " (" + update_user.Email + ")"
                         }).AsQueryable();
+
         return Task.FromResult(response);
     }
 }

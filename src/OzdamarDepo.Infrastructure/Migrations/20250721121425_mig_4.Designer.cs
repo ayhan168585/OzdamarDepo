@@ -12,8 +12,8 @@ using OzdamarDepo.Infrastructure.Context;
 namespace OzdamarDepo.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250715182035_mig_1")]
-    partial class mig_1
+    [Migration("20250721121425_mig_4")]
+    partial class mig_4
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,6 +43,68 @@ namespace OzdamarDepo.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("OzdamarDepo.Domain.Baskets.Basket", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CreateUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeleteUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("MediaItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("MediaItemImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("MediaItemPrice")
+                        .HasColumnType("money");
+
+                    b.Property<string>("MediaItemTitle")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("UpdateUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MediaItemId");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Baskets");
                 });
 
             modelBuilder.Entity("OzdamarDepo.Domain.MediaItems.MediaItem", b =>
@@ -102,6 +164,83 @@ namespace OzdamarDepo.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("MediaItems");
+                });
+
+            modelBuilder.Entity("OzdamarDepo.Domain.Orders.Order", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CartNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CartOwnerName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CreateUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Cvv")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("Date")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DeleteUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("District")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExpiresDate")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullAdress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InstallmentOptions")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("OrderNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UpdateUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("OzdamarDepo.Domain.Users.AppUser", b =>
@@ -188,6 +327,32 @@ namespace OzdamarDepo.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("OzdamarDepo.Domain.Baskets.Basket", b =>
+                {
+                    b.HasOne("OzdamarDepo.Domain.MediaItems.MediaItem", "MediaItem")
+                        .WithMany("Baskets")
+                        .HasForeignKey("MediaItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OzdamarDepo.Domain.Orders.Order", "Order")
+                        .WithMany("Baskets")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("OzdamarDepo.Domain.Users.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MediaItem");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("OzdamarDepo.Domain.MediaItems.MediaItem", b =>
                 {
                     b.OwnsOne("OzdamarDepo.Domain.MediaItems.MediaCondition", "MediaCondition", b1 =>
@@ -235,6 +400,16 @@ namespace OzdamarDepo.Infrastructure.Migrations
                     b.Navigation("MediaCondition");
 
                     b.Navigation("MediaType");
+                });
+
+            modelBuilder.Entity("OzdamarDepo.Domain.MediaItems.MediaItem", b =>
+                {
+                    b.Navigation("Baskets");
+                });
+
+            modelBuilder.Entity("OzdamarDepo.Domain.Orders.Order", b =>
+                {
+                    b.Navigation("Baskets");
                 });
 #pragma warning restore 612, 618
         }
