@@ -13,6 +13,7 @@
   </PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Iyzipay" Version="2.1.67" />
 		<PackageReference Include="Keycloak.AuthServices.Authentication" Version="2.6.0" />
 		<PackageReference Include="Keycloak.AuthServices.Authorization" Version="2.6.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.1" />
@@ -28,6 +29,10 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Scrutor" Version="6.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Services\Payments\" />
 	</ItemGroup>
 
 

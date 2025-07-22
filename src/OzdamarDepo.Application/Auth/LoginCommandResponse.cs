@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OzdamarDepo.Application.Auth
+﻿namespace OzdamarDepo.Application.Auth
 {
     public sealed record LoginCommandResponse
     {
@@ -19,5 +13,9 @@ namespace OzdamarDepo.Application.Auth
         public string LastName { get; set; } = default!;
         public string UserName { get; set; } = default!;
         public string Email { get; set; } = default!;
+
+        // ✅ Ödeme için gerekli yeni alanlar:
+        public string TcNo { get; set; } = default!;
+        public string Phone { get; set; } = default!;
     }
 }

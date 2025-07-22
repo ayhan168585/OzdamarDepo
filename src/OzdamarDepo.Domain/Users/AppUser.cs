@@ -12,6 +12,7 @@ namespace OzdamarDepo.Domain.Users
         public string LastName { get; set; } = default!;
         public string FullName => $"{FirstName} {LastName}";
 
+        public string? TcNo { get; set; } // <--- Bu satırı ekle
 
         public DateTimeOffset CreatedAt { get; set; }
         public Guid CreateUserId { get; set; } = default!;

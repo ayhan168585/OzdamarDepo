@@ -39,6 +39,8 @@ namespace OzdamarDepo.Infrastructure
      .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
+            services.Configure<IyzicoSettings>(configuration.GetSection("IyzicoSettings"));
+
             services.ConfigureOptions<JwtOptionsSetup>();
 
             services.AddAuthentication(options =>

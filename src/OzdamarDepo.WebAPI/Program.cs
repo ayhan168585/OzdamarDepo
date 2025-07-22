@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using OzdamarDepo.Application;
 using OzdamarDepo.Infrastructure;
+using OzdamarDepo.Infrastructure.Options;
 using OzdamarDepo.WebAPI;
 using OzdamarDepo.WebAPI.Controllers;
 using OzdamarDepo.WebAPI.Modules;
@@ -56,6 +57,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+
+
 // Build uygulama
 var app = builder.Build();
 
@@ -76,7 +79,7 @@ app.UseAuthorization();
 app.UseResponseCompression();
 app.UseExceptionHandler();
 
-app.MapControllers().RequireRateLimiting("fixed"); //.RequireAuthorization();
+app.MapControllers().RequireRateLimiting("fixed").RequireAuthorization();
 
 app.MapOpenApi();
 app.MapScalarApiReference();
