@@ -2,6 +2,8 @@ using FluentValidation;
 using GenericRepository;
 using Mapster;
 using MediatR;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using OzdamarDepo.Domain.MediaItems;
 using TS.Result;
 
@@ -9,14 +11,19 @@ namespace OzdamarDepo.Application.MediaItems
 {
     public sealed record MediaItemCreateCommand(
         string Title,
-        string imageUrl,
-        string ArtistOrActor,
-        MediaType MediaType,
-        decimal Price,
-        DateOnly ReleaseDate,
-        MediaCondition MediaCondition,
-        bool IsBoxSet,
-        int DiscCount) : IRequest<Result<string>>;
+    string ArtistOrActor,
+    MediaType MediaType,
+    decimal Price,
+    DateOnly ReleaseDate,
+    MediaCondition MediaCondition,
+    bool IsBoxSet,
+    int DiscCount,
+    byte[] Image,
+    string ImageFileName,
+
+    // 🔽 Bunu ekle
+    HttpRequest HttpRequest
+) : IRequest<Result<string>>;
 
     public sealed class MediaItemCreateCommandValidator : AbstractValidator<MediaItemCreateCommand>
     {
@@ -27,40 +34,49 @@ namespace OzdamarDepo.Application.MediaItems
             RuleFor(x => x.Price).GreaterThan(0).WithMessage("Fiyat 0'dan büyük olmalıdır!");
             RuleFor(x => x.MediaCondition.ConditionScore)
                 .InclusiveBetween(1, 10).WithMessage("Durum puanı 1-10 arası olmalıdır!");
+            RuleFor(x => x.Image).NotEmpty().WithMessage("Resim dosyası zorunludur!");
+            RuleFor(x => x.ImageFileName).NotEmpty().WithMessage("Resim dosya adı zorunludur!");
         }
     }
 
     public sealed class MediaItemCreateCommandHandler(
         IMediaItemRepository mediaItemRepository,
-        IUnitOfWork unitOfWork) : IRequestHandler<MediaItemCreateCommand, Result<string>>
+        IUnitOfWork unitOfWork,
+        IWebHostEnvironment env
+    ) : IRequestHandler<MediaItemCreateCommand, Result<string>>
     {
         public async Task<Result<string>> Handle(MediaItemCreateCommand request, CancellationToken cancellationToken)
         {
+            // WebRootPath boşsa fallback olarak çalış
+            var rootPath = env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            var uploadsPath = Path.Combine(rootPath, "uploads");
 
-            MediaItem mediaItem = request.Adapt<MediaItem>();
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(request.ImageFileName)}";
+            var imagePath = Path.Combine(uploadsPath, fileName);
+            var httpRequest = request.HttpRequest;
 
-            mediaItem.Title = request.Title;
-            mediaItem.ImageUrl = request.imageUrl;
-            mediaItem.ArtistOrActor = request.ArtistOrActor;
-            mediaItem.Price = request.Price;
-            mediaItem.MediaType= request.MediaType;
-            mediaItem.ReleaseDate = request.ReleaseDate;
-            mediaItem.MediaCondition = request.MediaCondition;
-            mediaItem.MediaDurum=MediaDurumEnum.Bekliyor;
-            mediaItem.IsBoxSet=request.IsBoxSet;
-            mediaItem.DiscCount = request.DiscCount;
+            Directory.CreateDirectory(uploadsPath); // Klasör varsa bir şey yapmaz
+
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var extension = Path.GetExtension(request.ImageFileName).ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                return Result<string>.Failure("Sadece JPG, PNG veya WEBP uzantılı dosyalar destekleniyor.");
+            }
+
+            await File.WriteAllBytesAsync(imagePath, request.Image, cancellationToken);
+
+            var mediaItem = request.Adapt<MediaItem>();
+            mediaItem.ImageUrl = $"{httpRequest.Scheme}://{httpRequest.Host}/uploads/{fileName}";
+            mediaItem.MediaDurum = MediaDurumEnum.Bekliyor;
+
             await mediaItemRepository.AddAsync(mediaItem);
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<string>.Succeed("Medya öğesi başarıyla eklendi!");
         }
 
-        private static string GetConditionDescription(int score) => score switch
-        {
-            >= 9 => "Mükemmel durumda",
-            >= 7 => "İyi durumda",
-            >= 5 => "Orta durumda",
-            _ => "Kötü durumda"
-        };
     }
-} 
+}

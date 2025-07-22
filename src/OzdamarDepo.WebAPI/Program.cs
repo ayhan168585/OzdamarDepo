@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.FileProviders;
 using OzdamarDepo.Application;
 using OzdamarDepo.Infrastructure;
 using OzdamarDepo.Infrastructure.Options;
@@ -38,6 +39,8 @@ builder.Services.AddControllers()
             .SetMaxTop(null)
             .AddRouteComponents("odata", AppODataController.GetEdmModel()));
 
+
+
 builder.Services.AddRateLimiter(x =>
     x.AddFixedWindowLimiter("fixed", cfg =>
     {
@@ -64,6 +67,14 @@ var app = builder.Build();
 
 // Middleware pipeline
 app.UseHttpsRedirection();
+app.UseHttpsRedirection();
+app.UseStaticFiles(); // wwwroot içini servis eder
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "uploads")),
+    RequestPath = "/uploads"
+});
 
 app.UseRouting();
 
@@ -79,7 +90,7 @@ app.UseAuthorization();
 app.UseResponseCompression();
 app.UseExceptionHandler();
 
-app.MapControllers().RequireRateLimiting("fixed").RequireAuthorization();
+app.MapControllers().RequireRateLimiting("fixed"); //.RequireAuthorization();
 
 app.MapOpenApi();
 app.MapScalarApiReference();
