@@ -28,6 +28,14 @@ namespace OzdamarDepo.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<Order?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _context.Orders
+                .Include(o => o.Baskets)
+                    .ThenInclude(b => b.MediaItem)
+                .FirstOrDefaultAsync(o => o.Id == id && !o.IsDeleted, cancellationToken);
+        }
+
         public async Task<List<OrderWithBasketsDto>> GetOrdersWithBasketsAndMediaAsync()
         {
             return await _context.Orders

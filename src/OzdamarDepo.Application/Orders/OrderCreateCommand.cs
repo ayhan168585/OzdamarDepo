@@ -9,7 +9,7 @@ namespace OzdamarDepo.Application.Orders
 {
     public sealed record OrderCreateCommand(
 
-string OrderNumber,
+    string OrderNumber,
     DateTimeOffset Date,
     Guid UserId,
     string FullName,
@@ -17,12 +17,7 @@ string OrderNumber,
     string City,
     string District,
     string FullAdress,
-    string CartNumber,
-    string CartOwnerName,
-    string ExpiresDate,
-    int Cvv,
-    string InstallmentOptions,
-    string Status,
+    CargoStatusEnum CargoStatus, // 👈 sadece tip ve ad
     List<Guid> BasketIds
 
 
@@ -40,13 +35,8 @@ string OrderNumber,
             RuleFor(x => x.City).NotEmpty().WithMessage("Şehir boş olamaz!");
             RuleFor(x => x.District).NotEmpty().WithMessage("İlçe boş olamaz!");
             RuleFor(x => x.FullAdress).NotEmpty().WithMessage("Adres boş olamaz!");
-            RuleFor(x => x.CartNumber).NotEmpty().WithMessage("Kart Numarası boş olamaz!");
-            RuleFor(x => x.CartOwnerName).NotEmpty().WithMessage("Kart Sahibi Adı boş olamaz!");
-            RuleFor(x => x.ExpiresDate).NotEmpty().WithMessage("Son Kullanma Tarihi boş olamaz!");
-            RuleFor(x => x.Cvv).GreaterThan(0).WithMessage("CVV 0'dan büyük olmalıdır!");
-            RuleFor(x => x.InstallmentOptions).NotEmpty().WithMessage("Taksit Seçenekleri boş olamaz!");
-            RuleFor(x => x.Status).NotEmpty().WithMessage("Sipariş Durumu boş olamaz!");
-
+            RuleFor(x => x.CargoStatus)
+                .IsInEnum().WithMessage("Geçersiz kargo durumu!");
 
         }
     }
@@ -74,12 +64,7 @@ string OrderNumber,
                 City = request.City,
                 District = request.District,
                 FullAdress = request.FullAdress,
-                CartNumber = request.CartNumber,
-                CartOwnerName = request.CartOwnerName,
-                ExpiresDate = request.ExpiresDate,
-                Cvv = request.Cvv,
-                InstallmentOptions = request.InstallmentOptions,
-                Status = request.Status,
+                CargoStatus = CargoStatusEnum.Bekliyor,
                 Baskets = baskets
             };
 

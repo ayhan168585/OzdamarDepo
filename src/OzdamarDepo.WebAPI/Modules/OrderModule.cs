@@ -15,11 +15,11 @@ namespace OzdamarDepo.WebAPI.Modules
             group.MapPost("",
     async (ISender sender, [FromBody] OrderCreateCommand request, CancellationToken cancellationToken) =>
 {
-                    var response = await sender.Send(request, cancellationToken);
-                    return response!.ToString() == "Success"
-                        ? Results.Ok(response)
-                        : Results.InternalServerError(response);
-                })
+    var response = await sender.Send(request, cancellationToken);
+    return response!.IsSuccessful
+        ? Results.Ok(response)
+        : Results.InternalServerError(response);
+})
                 .Produces<Result<string>>().
                 WithName("OrderCreate");
 
@@ -34,17 +34,20 @@ namespace OzdamarDepo.WebAPI.Modules
          .Produces<Result<string>>().
          WithName("OrderUpdate");
 
+            group.MapPut("update-cargo-status",
+                async (ISender sender, [FromBody] OrderUpdateCargoStatusCommand request, CancellationToken cancellationToken) =>
+                {
+                    var response = await sender.Send(request, cancellationToken);
+                    return response.IsSuccessful
+                        ? Results.Ok(response)
+                        : Results.InternalServerError(response);
+                })
+                .Produces<Result<string>>()
+                .WithName("OrderUpdateCargoStatus");
 
-            // group.MapPut("update-status",
-            //async (ISender sender, MediaItemDurumUpdateCommand request, CancellationToken cancellationToken) =>
-            //{
-            //    var response = await sender.Send(request, cancellationToken);
-            //    return response.IsSuccessful
-            //        ? Results.Ok(response)
-            //        : Results.InternalServerError(response);
-            //})
-            //.Produces<Result<string>>().
-            //WithName("MediaItemDurumUpdate");
+
+
+
 
             group.MapGet("{id}",
                  async (ISender sender, Guid id, CancellationToken cancellationToken) =>
@@ -64,6 +67,16 @@ namespace OzdamarDepo.WebAPI.Modules
 
            .Produces<Result<string>>().
                WithName("OrderDelete");
+
+            group.MapGet("user/{userId}",
+    async (Guid userId, ISender sender, CancellationToken cancellationToken) =>
+    {
+        var response = await sender.Send(new OrderGetAllQuery(userId), cancellationToken);
+        return Results.Ok(response);
+    })
+    .Produces<List<OrderGetAllQueryResponse>>()
+    .WithName("OrderGetAllByUser");
+
         }
     }
 

@@ -5,6 +5,7 @@ using OzdamarDepo.Domain.Abstractions;
 using OzdamarDepo.Domain.Baskets;
 using OzdamarDepo.Domain.Orders;
 using OzdamarDepo.Domain.Users;
+using System.ComponentModel.DataAnnotations;
 
 namespace OzdamarDepo.Application.Orders
 {
@@ -20,18 +21,31 @@ namespace OzdamarDepo.Application.Orders
         public string City { get; set; } = default!;
         public string District { get; set; } = default!;
         public string FullAdress { get; set; } = default!;
-        public string CartNumber { get; set; } = default!;
-        public string CartOwnerName { get; set; } = default!;
-        public string ExpiresDate { get; set; } = default!;
-        public int Cvv { get; set; }
-        public string InstallmentOptions { get; set; } = default!;
-        public string Status { get; set; } = default!;
+
+        public CargoStatusEnum CargoStatus { get; set; }
+        public string CargoStatusText => GetCargoStatusDisplayText(CargoStatus);
+
         public decimal Total { get; set; }
+        public List<BasketWithMediaItemDto> Baskets { get; set; } = new();
 
 
-    public List<BasketWithMediaItemDto> Baskets { get; set; } = new(); // Boş dizi bile olsa JSON'a yazılır
+        private static string GetCargoStatusDisplayText(CargoStatusEnum status)
+        {
+            var memberInfo = typeof(CargoStatusEnum).GetMember(status.ToString()).FirstOrDefault();
+            if (memberInfo != null)
+            {
+                var displayAttr = memberInfo.GetCustomAttributes(typeof(DisplayAttribute), false).FirstOrDefault() as DisplayAttribute;
+                if (displayAttr != null)
+                {
+                    return displayAttr.Name!;
+                }
+            }
 
+            return status.ToString();
+        }
     }
+
+
 
 
 
@@ -80,6 +94,7 @@ namespace OzdamarDepo.Application.Orders
                     Total = (b.MediaItem?.Price ?? 0) * b.Quantity
                 }).ToList();
 
+
                 return new OrderGetAllQueryResponse
                 {
                     OrderNumber = order.OrderNumber,
@@ -90,12 +105,7 @@ namespace OzdamarDepo.Application.Orders
                     City = order.City,
                     District = order.District,
                     FullAdress = order.FullAdress,
-                    CartNumber = order.CartNumber,
-                    CartOwnerName = order.CartOwnerName,
-                    ExpiresDate = order.ExpiresDate,
-                    Cvv = order.Cvv,
-                    InstallmentOptions = order.InstallmentOptions,
-                    Status = order.Status,
+                    CargoStatus = order.CargoStatus,
                     CreatedAt = order.CreatedAt,
                     UpdatedAt = order.UpdatedAt,
                     DeletedAt = order.DeletedAt,
@@ -114,7 +124,9 @@ namespace OzdamarDepo.Application.Orders
                 };
             }).ToList();
 
+
             return response;
+
         }
     }
 

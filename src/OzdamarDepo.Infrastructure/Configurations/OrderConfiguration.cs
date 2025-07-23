@@ -13,11 +13,12 @@ namespace OzdamarDepo.Infrastructure.Configurations
                    .HasForeignKey(b => b.OrderId)
                    .OnDelete(DeleteBehavior.Cascade);
 
-
+            // Enum alanını int olarak tanıt (zorunlu olmasa da tavsiye edilir)
+            builder.Property(o => o.CargoStatus)
+                   .HasConversion<int>()
+                   .IsRequired();
 
             builder.HasQueryFilter(x => !x.IsDeleted);
-
         }
-
     }
 }

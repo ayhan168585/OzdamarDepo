@@ -10,8 +10,9 @@ namespace OzdamarDepo.Application.Orders
 {
 
     public sealed record OrderUpdateCommand(
-        Guid Id,
-       string OrderNumber,
+            Guid OrderId, // 👈 EKLENDİ
+
+  string OrderNumber,
     DateTimeOffset Date,
     Guid UserId,
     string FullName,
@@ -19,13 +20,8 @@ namespace OzdamarDepo.Application.Orders
     string City,
     string District,
     string FullAdress,
-    string CartNumber,
-    string CartOwnerName,
-    string ExpiresDate,
-    int Cvv,
-    string InstallmentOptions,
-    string Status,
-    List<Basket> Baskets) : IRequest<Result<string>>;
+    CargoStatusEnum CargoStatus, // 👈 sadece tip ve ad
+    List<Guid> BasketIds) : IRequest<Result<string>>;
 
     public sealed class OrderUpdateCommandValidator : AbstractValidator<OrderUpdateCommand>
     {
@@ -39,25 +35,21 @@ namespace OzdamarDepo.Application.Orders
             RuleFor(x => x.City).NotEmpty().WithMessage("Şehir boş olamaz!");
             RuleFor(x => x.District).NotEmpty().WithMessage("İlçe boş olamaz!");
             RuleFor(x => x.FullAdress).NotEmpty().WithMessage("Adres boş olamaz!");
-            RuleFor(x => x.CartNumber).NotEmpty().WithMessage("Kart Numarası boş olamaz!");
-            RuleFor(x => x.CartOwnerName).NotEmpty().WithMessage("Kart Sahibi Adı boş olamaz!");
-            RuleFor(x => x.ExpiresDate).NotEmpty().WithMessage("Son Kullanma Tarihi boş olamaz!");
-            RuleFor(x => x.Cvv).GreaterThan(0).WithMessage("CVV 0'dan büyük olmalıdır!");
-            RuleFor(x => x.InstallmentOptions).NotEmpty().WithMessage("Taksit Seçenekleri boş olamaz!");
-            RuleFor(x => x.Status).NotEmpty().WithMessage("Sipariş Durumu boş olamaz!");
 
 
         }
     }
 
     public sealed class OrderUpdateCommandHandler(
-            IOrderRepository orderRepository,
-            IUnitOfWork unitOfWork) : IRequestHandler<OrderUpdateCommand, Result<string>>
+      IOrderRepository orderRepository,
+      IUnitOfWork unitOfWork,
+      IBasketRepository basketRepository // 👈 Bunu ekle
+  ) : IRequestHandler<OrderUpdateCommand, Result<string>>
     {
         public async Task<Result<string>> Handle(OrderUpdateCommand request, CancellationToken cancellationToken)
         {
 
-            var order = await orderRepository.FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
+            var order = await orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
 
             if (order is null)
             {
@@ -66,24 +58,21 @@ namespace OzdamarDepo.Application.Orders
 
 
 
-            request.Adapt(order);
 
             order.OrderNumber = request.OrderNumber;
             order.Date = request.Date;
-            order.UserId = request.UserId;
             order.FullName = request.FullName;
             order.PhoneNumber = request.PhoneNumber;
             order.City = request.City;
             order.District = request.District;
             order.FullAdress = request.FullAdress;
-            order.CartNumber = request.CartNumber;
-            order.CartOwnerName = request.CartOwnerName;
-            order.ExpiresDate = request.ExpiresDate;
-            order.Cvv = request.Cvv;
-            order.InstallmentOptions = request.InstallmentOptions;
-            order.Status = request.Status;
-            order.Baskets = request.Baskets;
-
+            order.CargoStatus = request.CargoStatus;
+            // Sepet sadece Bekliyor durumundayken güncellenebilir
+            if (order.CargoStatus == CargoStatusEnum.Bekliyor)
+            {
+                var baskets = await basketRepository.GetByIdsAsync(request.BasketIds, cancellationToken);
+                order.Baskets = baskets;
+            }
 
 
 

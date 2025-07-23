@@ -13,5 +13,7 @@ namespace OzdamarDepo.Domain.Orders
     {
         Task<List<Order>> GetAllWithBasketsAsync();
         Task<List<OrderWithBasketsDto>> GetOrdersWithBasketsAndMediaAsync();
+        Task<Order?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
     }
 }
