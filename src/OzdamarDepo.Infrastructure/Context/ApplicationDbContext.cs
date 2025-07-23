@@ -6,9 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using OzdamarDepo.Domain.Abstractions;
 using OzdamarDepo.Domain.Baskets;
+using OzdamarDepo.Domain.Genel_Ayarlar;
 using OzdamarDepo.Domain.MediaItems;
 using OzdamarDepo.Domain.Orders;
 using OzdamarDepo.Domain.Users;
+using OzdamarDepo.Infrastructure.Configurations;
 using System.Security.Claims;
 
 namespace OzdamarDepo.Infrastructure.Context;
@@ -25,6 +27,9 @@ public sealed class ApplicationDbContext : IdentityDbContext<AppUser, IdentityRo
     public DbSet<MediaItem> MediaItems { get; set; }
     public DbSet<Basket> Baskets { get; set; }
     public DbSet<Order> Orders { get; set; }
+
+    public DbSet<AppSetting> AppSettings { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -73,7 +78,17 @@ public sealed class ApplicationDbContext : IdentityDbContext<AppUser, IdentityRo
        .HasForeignKey(b => b.MediaItemId)
        .OnDelete(DeleteBehavior.Restrict); // veya SetNull/Cascade
 
-       
+        modelBuilder.Entity<AppSetting>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Key).IsUnique();
+            entity.Property(e => e.Value).IsRequired();
+        });
+
+        modelBuilder.ApplyConfiguration(new AppSettingConfiguration());
+
+
+
         //modelBuilder.Entity<Basket>()
         //    .HasOne(b => b.Order)
         //    .WithMany(o => o.Baskets)

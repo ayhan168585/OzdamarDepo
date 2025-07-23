@@ -8,6 +8,7 @@
             app.RegisterAuthRoutes();
             app.RegisterBasketRoutes();
             app.RegisterOrderRoutes();
+            app.RegisterAppSettingEndpoints();
 
 
         }
