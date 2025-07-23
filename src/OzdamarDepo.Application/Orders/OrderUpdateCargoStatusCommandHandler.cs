@@ -22,7 +22,7 @@ public sealed class OrderUpdateCargoStatusCommandHandler(
         orderRepository.Update(order);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return "Kargo durumu başarıyla güncellendi!";
+        return "Kargo durumu başarıyla güncellendi!"; 
     }
 }
 
