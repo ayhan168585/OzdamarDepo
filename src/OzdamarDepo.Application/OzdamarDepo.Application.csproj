@@ -28,4 +28,8 @@
     </PackageReference>
     <PackageReference Include="TS.Result" Version="9.0.1" />
   </ItemGroup>
+
+ <ItemGroup>
+   <Folder Include="Abstractions\" />
+ </ItemGroup>
 </Project>

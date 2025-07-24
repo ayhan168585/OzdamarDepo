@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using OzdamarDepo.Application.MediaItems;
 using OzdamarDepo.Domain.Abstractions;
 using OzdamarDepo.Domain.MediaItems;
+using OzdamarDepo.WebAPI.Modules.MediaItems.Requests;
 using TS.Result;
 
 namespace OzdamarDepo.WebAPI.Modules;
@@ -62,16 +63,60 @@ public static class MediaItemModule
             .Produces<Result<string>>()
             .WithName("MediaItemCreate");
 
-        group.MapPut(string.Empty,
-            async (ISender sender, MediaItemUpdateCommand request, CancellationToken cancellationToken) =>
+        group.MapPut("{id}", async (
+     Guid id,
+     HttpRequest httpRequest,
+     [FromForm] MediaItemUpdateRequest request,
+     [FromForm] IFormFile? imageFile,
+     ISender sender,
+     CancellationToken ct) =>
+        {
+            byte[]? imageBytes = null;
+            string? imageFileName = null;
+
+            if (imageFile is not null && imageFile.Length > 0)
             {
-                var response = await sender.Send(request, cancellationToken);
-                return response.IsSuccessful
-                    ? Results.Ok(response)
-                    : Results.InternalServerError(response);
-            })
-            .Produces<Result<string>>()
-            .WithName("MediaItemUpdate");
+                using var ms = new MemoryStream();
+                await imageFile.CopyToAsync(ms, ct);
+                imageBytes = ms.ToArray();
+                imageFileName = imageFile.FileName;
+            }
+
+            var command = new MediaItemUpdateCommand(
+                Id: id,
+                Title: request.Title,
+                ImageUrl: request.ImageUrl,
+                ArtistOrActor: request.ArtistOrActor,
+                MediaType: new MediaType
+                {
+                    Category = request.MediaCategory,
+                    Format = request.MediaFormat
+                },
+                Price: request.Price,
+                ReleaseDate: DateOnly.FromDateTime(request.ReleaseDate),
+                MediaCondition: new MediaCondition
+                {
+                    ConditionScore = request.ConditionScore,
+                    Description = request.ConditionDescription
+                },
+                IsBoxSet: request.IsBoxSet,
+                DiscCount: request.DiscCount,
+                Image: imageBytes,
+                ImageFileName: imageFileName,
+                HttpRequest: httpRequest
+            );
+
+            var result = await sender.Send(command, ct);
+            return result.IsSuccessful ? Results.Ok(result) : Results.BadRequest(result);
+        })
+ .DisableAntiforgery()
+ .Accepts<MediaItemUpdateRequest>("multipart/form-data")
+ .Produces<Result<string>>()
+ .WithName("MediaItemUpdate");
+
+
+
+
 
         group.MapPut("update-status",
             async (ISender sender, MediaItemDurumUpdateCommand request, CancellationToken cancellationToken) =>

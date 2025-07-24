@@ -7,7 +7,7 @@ using TS.Result;
 
 namespace OzdamarDepo.Application.Orders
 {
-    public sealed record OrderCreateCommand(
+    public record OrderCreateCommand(
 
     string OrderNumber,
     DateTimeOffset Date,

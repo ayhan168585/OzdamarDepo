@@ -39,6 +39,7 @@ builder.Services.AddControllers()
             .SetMaxTop(null)
             .AddRouteComponents("odata", AppODataController.GetEdmModel()));
 
+builder.Services.AddHttpContextAccessor();
 
 
 builder.Services.AddRateLimiter(x =>

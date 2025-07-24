@@ -33,9 +33,14 @@ namespace OzdamarDepo.Domain.Abstractions
         {
             HttpContextAccessor httpContextAccessor = new();
             var userManager = httpContextAccessor.HttpContext.RequestServices.GetRequiredService<UserManager<AppUser>>();
-            AppUser appUser = userManager.Users.First(p => p.Id == CreateUserId);
-            return appUser.FirstName + " " + appUser.LastName + "(" + appUser.Email + ")";
+            AppUser appUser = userManager.Users.FirstOrDefault(p => p.Id == CreateUserId);
+
+            if (appUser == null)
+                return "Sistem";
+
+            return appUser.FirstName + " " + appUser.LastName + " (" + appUser.Email + ")";
         }
+
 
         private string GetUpdateUserName()
         {

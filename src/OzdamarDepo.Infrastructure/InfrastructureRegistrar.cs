@@ -1,13 +1,13 @@
-using OzdamarDepo.Domain.Users;
-using OzdamarDepo.Infrastructure.Context;
 using GenericRepository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Scrutor;
+using OzdamarDepo.Domain.Users;
+using OzdamarDepo.Infrastructure.Context;
 using OzdamarDepo.Infrastructure.Options;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Scrutor;
 
 namespace OzdamarDepo.Infrastructure
 {
@@ -39,7 +39,9 @@ namespace OzdamarDepo.Infrastructure
      .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
-            services.Configure<IyzicoSettings>(configuration.GetSection("IyzicoSettings"));
+            //services.Configure<IyzicoSettings>(configuration.GetSection("IyzicoSettings"));
+
+          
 
             services.ConfigureOptions<JwtOptionsSetup>();
 
@@ -65,6 +67,8 @@ namespace OzdamarDepo.Infrastructure
             .WithScopedLifetime());
 
             return services;
+
+
 
 
 

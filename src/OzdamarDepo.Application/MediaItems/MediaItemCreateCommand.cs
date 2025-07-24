@@ -71,6 +71,8 @@ namespace OzdamarDepo.Application.MediaItems
             var mediaItem = request.Adapt<MediaItem>();
             mediaItem.ImageUrl = $"{httpRequest.Scheme}://{httpRequest.Host}/uploads/{fileName}";
             mediaItem.MediaDurum = MediaDurumEnum.Bekliyor;
+            var cleanedFileName = request.ImageFileName.Replace(" ", "_");
+            var uniqueFileName = $"{Guid.NewGuid()}_{cleanedFileName}";
 
             await mediaItemRepository.AddAsync(mediaItem);
             await unitOfWork.SaveChangesAsync(cancellationToken);
